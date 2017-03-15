@@ -1,0 +1,20 @@
+Package: tan
+Type: Package
+Title: An implementation of the Adaptive Neyman test for ChIP-seq differential analysis
+Version: 0.1.0
+Authors@R: person("Duy", "Nguyen", email = "ddnguyen4@wisc.edu", role = c("aut", "cre"))
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: An implementation of the Adaptive Neyman test (TAN) for identifying differential histone modifications 
+    from ChIP-seq data. It is a nonparametric method for qualitative comparison of ChIP-seq data. We demonstrate that 
+    this framework can detect differential histone enrichment under a wide range of settings. Compared to existing methods, 
+    TAN shows a much better performance to detect subtle differences in coverage levels between samples, yet is capable of 
+    detecting higher order changes such as shape across pre-defined regions. Additionally, not only can TAN be universally applicable 
+    to any type of ChIP-seq data, but also easily extended for multiple condition comparison. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+LinkingTo: Rcpp
+Imports: Rcpp,
+    doParallel,
+    foreach
