@@ -94,7 +94,7 @@
                 if (length(sites)>0) {
                     for (site in sites) {
                         # print(paste('site = ', site))
-                        if (minus == TRUE) {
+                        if (minus_condition == TRUE) {
                             X1 <- object@coverage[[site]][1:2,] #ab
                             Y1 <- object@coverage[[site]][c(1,3),] #ac
                             X2 <- object@coverage[[site]][1:2,] #ab
