@@ -228,5 +228,9 @@ evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, Between_cols) {
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp
 NULL
+#' @import methods
+NULL
+#' @import foreach
+NULL
 
 
