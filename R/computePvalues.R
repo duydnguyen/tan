@@ -309,7 +309,7 @@
                     if (i==1){
                         idx <- which(CompNs <= object@dN[[i]])
                     } else {
-                        idx <- which(CompNs > object@dN[[i-1]] & CompNs<=dN[[i]])
+                        idx <- which(CompNs > object@dN[[i-1]] & CompNs<=object@dN[[i]])
                     }
                     if (length(idx)==0) next
                 }
