@@ -12,7 +12,7 @@
     if (nSamples == 4) {
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
         Ns_cols <- 12
-        Ncount  <- foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
+        Ncount  <- foreach::foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
             if (grid != n_cores) {
                 start <- (grid-1)*sizeGrid + 1
                 end <- grid*sizeGrid
