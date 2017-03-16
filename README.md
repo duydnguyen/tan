@@ -1,4 +1,4 @@
 tan
 ---
 
-An Implementation Of the Adaptive Neyman Test for ChIP-seq Differential Analysis
+An Implementation of the Adaptive Neyman Test for ChIP-seq Differential Analysis
