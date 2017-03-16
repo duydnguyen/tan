@@ -103,12 +103,12 @@
                             Y3 <- object@coverage[[site]][2:3,] #bc
                         }
                         else {
-                            X1 <- object@coverage[[site]][5:6,]
-                            Y1 <- object@coverage[[site]][c(5,7),]
-                            X2 <- object@coverage[[site]][5:6,]
-                            Y2 <- object@coverage[[site]][6:7,]
-                            X3 <- object@coverage[[site]][c(5,7),]
-                            Y3 <- object@coverage[[site]][6:7,]
+                            X1 <- object@coverage[[site]][4:5,]
+                            Y1 <- object@coverage[[site]][c(4,6),]
+                            X2 <- object@coverage[[site]][4:5,]
+                            Y2 <- object@coverage[[site]][5:6,]
+                            X3 <- object@coverage[[site]][c(4,6),]
+                            Y3 <- object@coverage[[site]][5:6,]
 
                         }
                         if ( dim(X1)[2] < object@s.size ) {
@@ -153,8 +153,10 @@
                 }
             }
         } # end of bin
-    } else if (object@nSamples == 2) {
-        #TODO
+    }
+    else if (object@nSamples == 2) {
+        print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
+        # TODO
     }
     # return results
     if (minus_condition) {
