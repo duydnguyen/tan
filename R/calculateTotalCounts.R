@@ -81,7 +81,7 @@
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
         # number of columns for Ns =  (ab,ac,bc; similar for plus condition)
         Ns_cols <- 3*2
-        Ncount  <- foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
+        Ncount  <- foreach::foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
             if (grid != n_cores) {
                 start <- (grid-1)*sizeGrid + 1
                 end <- grid*sizeGrid
@@ -148,7 +148,7 @@
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
         # number of columns for Ns =  (ab, AB)
         Ns_cols <- 1*2
-        Ncount  <- foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
+        Ncount  <- foreach::foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
             if (grid != n_cores) {
                 start <- (grid-1)*sizeGrid + 1
                 end <- grid*sizeGrid
