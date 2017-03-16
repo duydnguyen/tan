@@ -249,10 +249,10 @@
             }
         }
         labs <- labs[-c(1)]
-        ### Get dictinary {a:1, b:2, c:3, d:4}
+        ### Get dictinary {a:1, b:2, c:3, ...}
         getDict <- function(s) {
-            switch(s, a = 1, b = 2, c = 3, d = 4,
-                   A = 5, B = 6, C = 7, D = 8)
+            switch(s, a = 1, b = 2, c = 3,
+                   A = 4, B = 5, C = 6)
         }
         ### Main ###
         total <-  nPeaks <- length(object@coverage)
