@@ -3,9 +3,9 @@
     ## parallel backend
     total <- length(object@coverage)
     Ns_cols <- c()
-    n_cores <- detectCores()
-    cl <- makeCluster(n_cores)
-    registerDoParallel(cl)
+    n_cores <- parallel::detectCores()
+    cl <- parallel::makeCluster(n_cores)
+    doParallel::registerDoParallel(cl)
     sizeGrid <- floor(total / n_cores)
     Ncount <- matrix()
     ### nSamples = 4 ###
@@ -211,7 +211,7 @@
             return(Ns)
         }
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     # Add labels for Ns
     Ns <- matrix(NA, nrow = total, ncol = Ns_cols)
     #colnames(Ncount) <- c(letters[1:4], toupper(letters[1:4]))
