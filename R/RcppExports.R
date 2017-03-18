@@ -29,4 +29,3 @@ compute_Var <- function(X, Y, na_rm, pool) {
     .Call('tan_compute_Var', PACKAGE = 'tan', X, Y, na_rm, pool)
 }
 
-
