@@ -636,8 +636,8 @@
                         else {
                             if (ii %in% sitesUnused ) {
                                 design <- object@Designs[site, ]
-                                ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = c(),
-                                                   poolVarY = c())$statistic
+                                ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
+                                                   poolVarY = NA)$statistic
                             } else {
                                 design <- object@Designs[site, ]
                                 clen <- 1:length(varMinus)
