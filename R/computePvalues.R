@@ -1,4 +1,4 @@
-.computePvalues <- function(object, quant, poolQuant, movAve) {
+.computePvalues <- function(object, quant, poolQuant, movAve, Global_lower) {
     if (object@nSamples == 4) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
         ## Name columns:

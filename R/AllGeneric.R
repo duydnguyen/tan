@@ -83,12 +83,14 @@ setGeneric("generateWithinTan", function(object, minus_condition) {
 #' @param quant A quantile to obtain the combined p-values.
 #' @param poolQuant A quantile to pool the variances; DEFAULT is median.
 #' @param movAve A parameter to smooth the variance.
+#' @param Global_lower set lower bound for minGlobal (length of pooled var vector for each bins)
+#'    Recommend using \code{Global_lower <- floor(s.size/2)}
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setGeneric("computePvalues", function(object, quant, poolQuant, movAve) {
+setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower) {
     standardGeneric("computePvalues")
 })
 
