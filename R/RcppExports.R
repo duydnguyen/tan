@@ -29,12 +29,4 @@ compute_Var <- function(X, Y, na_rm, pool) {
     .Call('tan_compute_Var', PACKAGE = 'tan', X, Y, na_rm, pool)
 }
 
-#' @title
-#' Multiply a number by two
-#'
-#' @param x A single integer.
-#' @export
-timesTwo <- function(x) {
-    .Call('tan_timesTwo', PACKAGE = 'tan', x)
-}
 
