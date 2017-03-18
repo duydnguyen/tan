@@ -35,11 +35,13 @@ variance is disscussed in our paper.}
 \item{\code{plusVar}}{A list of pooled variances for the second condition. Pooling method for
 variance is disscussed in our paper.}
 
-\item{\code{poolVar}}{A list of pooled variances for case sanple size n = 2.}
+\item{\code{poolVar}}{A list of pooled variances for case sanple size \code{n = 2}.}
 
 \item{\code{W1}}{A matrix stores within Adaptive Neyman tests for first condition.}
 
 \item{\code{W2}}{A matrix stores within Adaptive Neyman tests for second condition.}
+
+\item{\code{W}}{A matrix stores Adaptive Neyman tests under the null hypothesis. This is only for case sample size \code{n=2}.}
 
 \item{\code{PvalList}}{A list of results (\code{('pval','FDR')})for P-values.}
 }}
