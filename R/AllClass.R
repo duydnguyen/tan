@@ -15,6 +15,7 @@
 #'    variance is disscussed in our paper.
 #' @slot plusVar A list of pooled variances for the second condition. Pooling method for
 #'    variance is disscussed in our paper.
+#' @slot poolVar A list of pooled variances for case sanple size n = 2.
 #' @slot W1 A matrix stores within Adaptive Neyman tests for first condition.
 #' @slot W2 A matrix stores within Adaptive Neyman tests for second condition.
 #' @slot PvalList A list of results (\code{('pval','FDR')})for P-values.
@@ -27,7 +28,7 @@ setClass("tanDb",
          representation = representation(coverage = "list", Designs = "matrix", Ns = "matrix",
                                          s.size = "numeric", wSites = "list", quantprobs = "numeric",
                                          dN = "numeric", nSamples = "numeric",
-                                         minusVar = "list", plusVar = "list",
+                                         minusVar = "list", plusVar = "list", poolVar = "list",
                                          W1 = "matrix", W2 = "matrix",
                                          PvalList = "list"),
          prototype = prototype(coverage = list(), Designs = matrix())

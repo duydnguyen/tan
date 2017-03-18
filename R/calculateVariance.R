@@ -156,13 +156,80 @@
     }
     else if (object@nSamples == 2) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
-        # TODO
+        Var <- list()
+        lab_pool <- c('ab', 'aA', 'aB', 'AB', 'bB', 'Ab')
+        for (bin in 1:length(object@wSites)) {
+            print(paste('bin = ', bin))
+            sites <- object@wSites[[bin]]
+            df <- data.frame()
+            varList <- list()
+            minGlobal <- Inf
+            count <- 1
+            if (length(sites) > 0) {
+                for (site in sites) {
+                    # print(paste('site = ', site))
+                    geta <- object@coverage[[site]][1,]
+                    getb <- object@coverage[[site]][2,]
+                    getA <- object@coverage[[site]][3,]
+                    getB <- object@coverage[[site]][4,]
+                    X1 <- rbind( geta, getb)
+                    Y1 <- rbind( getA, getB)
+                    X2 <- rbind( geta, getA)
+                    Y2 <- rbind( getb, getB)
+                    X3 <- rbind( geta, getB)
+                    Y3 <- rbind( getA, getb)
+                    if ( dim(X1)[2] < object@s.size ) {
+                        test1 <- tan::compute_Var(X1, Y1, na_rm = TRUE, pool = FALSE)
+                        test2 <- tan::compute_Var(X2, Y2, na_rm = TRUE, pool = FALSE)
+                        test3 <- tan::compute_Var(X3, Y3, na_rm = TRUE, pool = FALSE)
+                    }
+                    else {
+                        design <- object@Designs[site, ]
+                        test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
+                        test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
+                        test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
+                    }
+                    minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
+                                      length(test1$varY), length(test2$varY), length(test3$varY)))
+                    ## check minIndex > Global_lower (lower bound for pooled var vector of each bins)
+                    if (minIndex > Global_lower) {
+                        if (minGlobal > minIndex) {
+                            minGlobal <- minIndex
+                        }
+                        df <- data.frame('ab' = test1$varX[1:minIndex], 'aA' = test2$varX[1:minIndex], 'aB' = test3$varX[1:minIndex],
+                                         'AB' = test1$varY[1:minIndex], 'bB' = test2$varY[1:minIndex], 'Ab' = test3$varY[1:minIndex])
+                        varList[[count]] <- df
+                        count <- count + 1 # keep track of all sites in bin i
+                    } # end of if (minIndex > Global_lower)
+                } # end of for (site in sites)
+                ## Pooling variances across sites in bin
+                poolVar <- list()
+                print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
+                matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
+                for (pair in lab_pool) {
+                    for (i in 1:length(varList)) {
+                        matVar[i,] <- varList[[i]][1:minGlobal, pair]
+                    }
+                    var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
+                    if ( length(var) >= movAve ) {
+                        var <- tan::movingAverage(var, movAve)
+                    }
+                    poolVar[[pair]] <- var
+                }
+                Var[[bin]] <- poolVar
+            }
+        } # end of bin
     }
     # return results
-    if (minus_condition) {
-        object@minusVar <- Var
-    } else {
-        object@plusVar <- Var
+    if (object@nSamples == 2) {
+        object@poolVar <- Var
+    }
+    else if (object@nSamples %in% c(3,4)) {
+        if (minus_condition) {
+            object@minusVar <- Var
+        } else {
+            object@plusVar <- Var
+        }
     }
     object
 }
