@@ -20,3 +20,4 @@ Imports: Rcpp,
     doParallel,
     foreach,
     methods
+Suggests: testthat
