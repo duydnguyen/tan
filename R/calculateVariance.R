@@ -1,9 +1,15 @@
 .calculateVariance <- function(object, minus_condition, Global_lower, poolQuant, movAve) {
-    if (minus_condition == TRUE) {
-        print("Calculating Variance for first condition")
-    } else {
-        print("Calculating Variance for second condition")
+    if (object@nSamples %in% c(3,4)) {
+        if (minus_condition == TRUE) {
+            print("Calculating Variance for first condition")
+        } else {
+            print("Calculating Variance for second condition")
+        }
     }
+    else if (object@nSamples == 2) {
+        print("Calculating pool Variance for both conditions")
+    }
+
     Var <- list()
     ### nSamples = 4 ###
     if (object@nSamples == 4) {
