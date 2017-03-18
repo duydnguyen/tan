@@ -4,7 +4,7 @@
 \alias{computePvalues}
 \title{Compute p values for adaptive tests}
 \usage{
-computePvalues(object, quant, poolQuant, movAve)
+computePvalues(object, quant, poolQuant, movAve, Global_lower)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -14,6 +14,9 @@ computePvalues(object, quant, poolQuant, movAve)
 \item{poolQuant}{A quantile to pool the variances; DEFAULT is median.}
 
 \item{movAve}{A parameter to smooth the variance.}
+
+\item{Global_lower}{set lower bound for minGlobal (length of pooled var vector for each bins)
+Recommend using \code{Global_lower <- floor(s.size/2)}}
 }
 \description{
 Compute p values for adaptive tests
