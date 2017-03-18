@@ -24,7 +24,7 @@ test_that(" down-sampling data with n = 4", {
     fooDb <- calculateVariance(fooDb, minus_condition = FALSE, Global_lower = Global_lower, poolQuant = poolQuant, movAve = movAve )
     fooDb <- generateWithinTan(fooDb, minus_condition = TRUE)
     fooDb <- generateWithinTan(fooDb, minus_condition = FALSE)
-    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve )
+    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve, Global_lower = Global_lower )
     # test:
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n4/P_q100.RData")
     expect_equal(fooDb@PvalList, P)
@@ -59,7 +59,7 @@ test_that(" down-sampling data with n = 3", {
     fooDb <- calculateVariance(fooDb, minus_condition = FALSE, Global_lower = Global_lower, poolQuant = poolQuant, movAve = movAve )
     fooDb <- generateWithinTan(fooDb, minus_condition = TRUE)
     fooDb <- generateWithinTan(fooDb, minus_condition = FALSE)
-    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve )
+    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve, Global_lower = Global_lower )
     # test:
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n3/Samples_123/P_q100.RData")
     expect_equal(fooDb@PvalList, P)
@@ -93,7 +93,7 @@ test_that(" down-sampling data with n = 2", {
     fooDb <- calculateWithinSites(fooDb, quantprobs = quantprobs)
     fooDb <- calculateVariance(fooDb, minus_condition = NA, Global_lower = Global_lower, poolQuant = poolQuant, movAve = movAve )
     fooDb <- generateWithinTan(fooDb, minus_condition = NA)
-    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve )
+    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve, Global_lower = Global_lower )
     # test:
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n2/Samples_12/P.RData")
     expect_equal(fooDb@PvalList, P)
