@@ -26,7 +26,7 @@ test_that(" down-sampling data with n = 4", {
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n4/minusVar.RData")
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n4/plusVar.RData")
     expect_equal(fooDb@minusVar, minusVar)
-    expect_equal(fooDb@plussVar, plusVar)
+    expect_equal(fooDb@plusVar, plusVar)
 })
 
 test_that(" down-sampling data with n = 3", {
@@ -60,7 +60,7 @@ test_that(" down-sampling data with n = 3", {
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n3/Samples_123/minusVar.RData")
     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n3/Samples_123/plusVar.RData")
     expect_equal(fooDb@minusVar, minusVar)
-    expect_equal(fooDb@plussVar, plusVar)
+    expect_equal(fooDb@plusVar, plusVar)
 })
 
 test_that(" down-sampling data with n = 2", {
