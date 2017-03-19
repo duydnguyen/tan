@@ -106,6 +106,7 @@ test_that(" Simulation with n = 4", {
     load(file = "/u/d/n/dnguyen/Projects/Histone_Modifications/2015_10_27/Generated/CoverageList.RData")
     sim <- 1
     coverage <- coverageList[[sim]]
+    coverage <- coverage
     fooDb <- new("tanDb", coverage = coverage)
     print("create Designs")
     fooDb <- createDesigns(fooDb, s.size = s.size, LHD = LHD, Uniform = Uniform )
