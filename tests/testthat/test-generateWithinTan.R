@@ -100,7 +100,6 @@ context("calculate Variance")
 #     expect_equal(fooDb@W, W)
 # })
 
-<<<<<<< HEAD
 # test_that(" Simulation with n = 4", {
 #     ### parameters ###
 #     s.size <- 500; LHD <- TRUE; Uniform <- FALSE
@@ -136,7 +135,7 @@ context("calculate Variance")
 #     expect_equal(fooDb@W1, W1)
 #     expect_equal(fooDb@W2, W2)
 # })
-=======
+
 test_that(" Simulation with n = 4", {
     ### parameters ###
     s.size <- 500; LHD <- TRUE; Uniform <- FALSE
@@ -172,4 +171,3 @@ test_that(" Simulation with n = 4", {
     expect_equal(fooDb@W1, W1)
     expect_equal(fooDb@W2, W2)
 })
->>>>>>> dbf87fec252afcbec58e020acf328dd1aa27c3b9
