@@ -130,6 +130,6 @@ test_that(" Simulation with n = 4", {
     fooDb <- generateWithinTan(fooDb, minus_condition = FALSE)
     fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve, Global_lower = Global_lower )
     # test:
-    load(file = paste(path, 'P_q100.RData.RData', sep =''))
+    load(file = paste(path, 'P_q100.RData', sep =''))
     expect_equal(fooDb@PvalList, P)
 })
