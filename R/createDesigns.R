@@ -5,7 +5,13 @@
         if (site %%1000 == 0) {
             print(paste(site,' out of', total))
         }
-        Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = length(object@coverage[[site]][1,]), LHD = LHD, Uniform = Uniform)
+        peakWidth <- length(object@coverage[[site]][1,])
+        if (s.size <= peakWidth) {
+            Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform)
+        } else {
+            message("INVALID: number of sample points s.size > width of genomic peak ")
+        }
+
     }
     object@Designs <- Designs
     object@s.size <- s.size
