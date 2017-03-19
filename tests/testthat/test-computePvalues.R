@@ -98,3 +98,38 @@ context("compute P-values")
 #     load("/p/keles/DBChIP/volume4/Summaries/2016_06_18/Generated/Simulation1/DiffAnalysis_n2/Samples_12/P.RData")
 #     expect_equal(fooDb@PvalList, P)
 # })
+
+test_that(" Simulation with n = 4", {
+    ### parameters ###
+    s.size <- 500; LHD <- TRUE; Uniform <- FALSE
+    bNormWidth <- FALSE; bSampleMean <- FALSE
+    # quantile vector for binning
+    quantprobs <- seq(0, 1, 0.05) # this is the default binning for down sampling
+    ## set lower bound for minGlobal (length of pooled var vector for each bins)
+    Global_lower <- 0 # defaul value: Global_lower <- 0
+    ## pooled quantile at each genomic position: (for calculateVariance())
+    poolQuant <- 0.5
+    # number of points for moving average
+    movAve <- 20
+    ## pooled quantile at each genomic position:
+    poolQuant <- 0.5
+    ### coverage from Simulation
+    path <- "/p/keles/DBChIP/volume2/Summaries/2016_01_23/Generated/EmpPvalPool/"
+    load(file = "/u/d/n/dnguyen/Projects/Histone_Modifications/2015_10_27/Generated/CoverageList.RData")
+    sim <- 1
+    coverage <- coverageList[[sim]]
+    coverage[["labels"]] <- coverage[["labels_new"]] <- NULL
+    fooDb <- new("tanDb", coverage = coverage)
+    print("create Designs")
+    fooDb <- createDesigns(fooDb, s.size = s.size, LHD = LHD, Uniform = Uniform )
+    fooDb <- calculateTotalCounts(fooDb, nSamples = 4, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
+    fooDb <- calculateWithinSites(fooDb, quantprobs = quantprobs)
+    fooDb <- calculateVariance(fooDb, minus_condition = TRUE, Global_lower = Global_lower, poolQuant = poolQuant, movAve = movAve )
+    fooDb <- calculateVariance(fooDb, minus_condition = FALSE, Global_lower = Global_lower, poolQuant = poolQuant, movAve = movAve )
+    fooDb <- generateWithinTan(fooDb, minus_condition = TRUE)
+    fooDb <- generateWithinTan(fooDb, minus_condition = FALSE)
+    fooDb <- computePvalues(fooDb, quant = 1, poolQuant = poolQuant, movAve = movAve, Global_lower = Global_lower )
+    # test:
+    load(file = paste(path, 'P_q100.RData.RData', sep =''))
+    expect_equal(fooDb@PvalList, P)
+})
