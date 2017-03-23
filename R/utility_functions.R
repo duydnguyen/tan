@@ -49,7 +49,12 @@ AN.test <- function (X1, X2, candK = 1:ncol(X1), na.rm = FALSE, pool = FALSE, po
 
     if (pool == FALSE) {
         for (kk in 1:ncol(X1)) {
+            if (ncol(X1) == 0) {
+                stop("Peak with zero length!")
+            }
             # Compute Cov of columns: Var1 is the pooled var of all vars of columns of X
+            #print(paste("+++ kk = ", kk))
+            #print(paste("+++ ncol X1 = ", ncol(X1) ))
             var1 <- mean(diag(var(X1[, 1:kk, drop = FALSE])))
             var2 <- mean(diag(var(X2[, 1:kk, drop = FALSE])))
             X <- colMeans(X1[, 1:kk, drop = FALSE]) - colMeans(X2[,
