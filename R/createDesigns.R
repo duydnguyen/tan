@@ -9,7 +9,8 @@
         if (s.size <= peakWidth) {
             Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform)
         } else {
-            message("INVALID: number of sample points s.size > width of genomic peak ")
+            message("s.size > width of genomic peak: No Sampling required! ")
+            Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform)
         }
 
     }
