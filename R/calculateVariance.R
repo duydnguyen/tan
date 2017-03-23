@@ -1,4 +1,4 @@
-.calculateVariance <- function(object, minus_condition, Global_lower, poolQuant, movAve) {
+.calculateVariance <- function(object, minus_condition, Global_lower, poolQuant, movAve, ...) {
     if (object@nSamples %in% c(3,4)) {
         if (minus_condition == TRUE) {
             print("Calculating Variance for first condition")
@@ -43,15 +43,29 @@
                             Y3 <- object@coverage[[site]][c(6,7),]
                         }
                         if ( dim(X1)[2] < object@s.size ) {
-                            test1 <- tan::compute_Var(X1, Y1, na_rm = TRUE, pool = FALSE)
-                            test2 <- tan::compute_Var(X2, Y2, na_rm = TRUE, pool = FALSE)
-                            test3 <- tan::compute_Var(X3, Y3, na_rm = TRUE, pool = FALSE)
+                            if (use_cpp) {
+                                test1 <- tan::compute_Var(X1, Y1, na_rm = TRUE, pool = FALSE)
+                                test2 <- tan::compute_Var(X2, Y2, na_rm = TRUE, pool = FALSE)
+                                test3 <- tan::compute_Var(X3, Y3, na_rm = TRUE, pool = FALSE)
+                            }
+                            else {
+                                test1 <-  tan::AN.test(X1, Y1, na.rm=TRUE)
+                                test2 <-  tan::AN.test(X2, Y2, na.rm=TRUE)
+                                test3 <-  tan::AN.test(X3, Y3, na.rm=TRUE)
+                            }
                         }
                         else {
                             design <- object@Designs[site, ]
-                            test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
-                            test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
-                            test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
+                            if (use_cpp) {
+                                test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
+                                test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
+                                test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
+                            }
+                            else {
+                                test1 <- tan::AN.test(X1[, design], Y1[, design], na.rm=TRUE)
+                                test2 <- tan::AN.test(X2[, design], Y2[, design], na.rm=TRUE)
+                                test3 <- tan::AN.test(X3[, design], Y3[, design], na.rm=TRUE)
+                            }
                         }
                         minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
                                           length(test1$varY), length(test2$varY), length(test3$varY)))
