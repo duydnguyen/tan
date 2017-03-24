@@ -177,7 +177,7 @@
                     message("minGlobal = Inf. Please consider larger bin sizes and/or filtering sites with zero variances and small peakLengths!")
                 }
                 # add siteUnused to slot:
-                object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
+                object@sitesUnused <- unique(c(object@sitesUnused, idx[sitesUnused] ))
                 #########################################################
                 ### Compute Adaptive Neyman tests with pooled variance
                 #########################################################
@@ -203,7 +203,8 @@
                                 else {
                                     ANT[ii] <- tan::AN.test(X, Y, na.rm=TRUE)$statistic
                                 }
-                            } else {
+                            }
+                            else {
                                 clen <- 1:length(varMinus)
                                 if (use_cpp) {
                                     ANT[ii] <- tan::AN_test(X[, clen], Y[, clen], na_rm=TRUE, pool= TRUE, poolVarX = varMinus,
@@ -213,7 +214,6 @@
                                     ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
                                                             poolVarY = varPlus)$statistic
                                 }
-
                             }
                         } # end of if (dim(X)[2] < s.size)
                         else {
@@ -240,14 +240,12 @@
                                 }
                             }
                         }
-
                     } # end of for (ii in 1:length(idx))
                     if (length(H0.idx) > 0 ) {
-                        p[idx,j] <- sapply(ANT,function(tanTest) {
-                            length(which(H0[H0.idx]>=tanTest))/length(H0.idx)
+                        p[idx, j] <- sapply(ANT, function(tanTest) {
+                            length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
                     }
-
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)
         } # end of for (i in 1:length(dN))
