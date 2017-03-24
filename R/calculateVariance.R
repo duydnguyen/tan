@@ -109,6 +109,7 @@
     else if (object@nSamples == 3) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
         lab_pool <- c('ab', 'ac', 'bc') # label of S_
+        sitesUnused <- c()
         for (bin in 1:length(object@wSites)) {
             print(paste('bin = ', bin))
             if (length(object@wSites[[bin]]) > 0 ) {
@@ -160,6 +161,11 @@
                             varList[[count]] <- df
                             count <- count + 1
                         }
+                        # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
+                        # or manyrepeated counts: 03/24/17
+                        else {
+                            sitesUnused <- c(sitesUnused, site)
+                        }
                     } # end of for (site in sites)
                     ## Pooling variances across sites in bin
                     poolVar <- list()
@@ -179,11 +185,13 @@
                 }
             }
         } # end of bin
+        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
     }
     else if (object@nSamples == 2) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
         Var <- list()
         lab_pool <- c('ab', 'aA', 'aB', 'AB', 'bB', 'Ab')
+        sitesUnused <- c()
         for (bin in 1:length(object@wSites)) {
             print(paste('bin = ', bin))
             sites <- object@wSites[[bin]]
@@ -227,6 +235,11 @@
                         varList[[count]] <- df
                         count <- count + 1 # keep track of all sites in bin i
                     } # end of if (minIndex > Global_lower)
+                    # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
+                    # or manyrepeated counts: 03/24/17
+                    else {
+                        sitesUnused <- c(sitesUnused, site)
+                    }
                 } # end of for (site in sites)
                 ## Pooling variances across sites in bin
                 poolVar <- list()
@@ -245,6 +258,7 @@
                 Var[[bin]] <- poolVar
             }
         } # end of bin
+        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
     }
     # return results
     if (object@nSamples == 2) {
