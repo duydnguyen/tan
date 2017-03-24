@@ -242,9 +242,19 @@
                         }
                     } # end of for (ii in 1:length(idx))
                     if (length(H0.idx) > 0 ) {
-                        p[idx, j] <- sapply(ANT, function(tanTest) {
-                            length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
+                        if (ignore_sitesUnused == FALSE) {
+                            p[idx, j] <- sapply(ANT, function(tanTest) {
+                                length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
+                        }
+                        # new: 03/24/2017
+                        else {
+                            na_indices <- which(is.na(ANT) == TRUE)
+                            p[idx, j] <- sapply(ANT, function(tanTest) {
+                                length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
+                            })
+                            p[idx[na_indices], j] <- -1
+                        }
                     }
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)

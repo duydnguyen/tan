@@ -5,7 +5,7 @@
 \title{Compute p values for adaptive tests}
 \usage{
 computePvalues(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE,
-  ...)
+  ignore_sitesUnused = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -21,6 +21,9 @@ Recommend using \code{Global_lower <- floor(s.size/2)}}
 
 \item{use_cpp}{TRUE if the implementation uses cpp functions;
 FALSE if the implementation uses R functions. R version is under development.}
+
+\item{ignore_sitesUnused}{FALSE by default if considering sitesUnused when computing p-values of testing between;
+recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up}
 }
 \description{
 Compute p values for adaptive tests
