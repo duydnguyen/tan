@@ -20,7 +20,8 @@ Recommend using \code{Global_lower <- floor(s.size/2)}}
 
 \item{movAve}{A number of points for moving average.}
 
-\item{use_cpp}{TRUE if the implementation uses cpp functions; FALSE if the implementation uses R functions.}
+\item{use_cpp}{TRUE if the implementation uses cpp functions;
+FALSE if the implementation uses R functions. R version is under development.}
 }
 \value{
 A list of pooled variances for the given condition.

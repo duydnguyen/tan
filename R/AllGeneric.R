@@ -53,7 +53,8 @@ setGeneric("calculateWithinSites", function(object, quantprobs) {
 #'    Recommend using \code{Global_lower <- floor(s.size/2)}
 #' @param poolQuant A pooled quantile at each genomic position.
 #' @param movAve A number of points for moving average.
-#' @param use_cpp TRUE if the implementation uses cpp functions; FALSE if the implementation uses R functions.
+#' @param use_cpp TRUE if the implementation uses cpp functions;
+#' FALSE if the implementation uses R functions. R version is under development.
 #'
 #' @return  A list of pooled variances for the given condition.
 #' @export
