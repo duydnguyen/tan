@@ -70,12 +70,14 @@ setGeneric("calculateVariance", function(object, minus_condition, Global_lower, 
 #' @param object A \code{tanDb} object
 #' @param minus_condition TRUE if calculating the first (or minus ) condition;
 #'    FALSE if calculating the second (or plus) condition.
+#' @param use_cpp TRUE if the implementation uses cpp functions;
+#' FALSE if the implementation uses R functions. R version is under development.
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setGeneric("generateWithinTan", function(object, minus_condition) {
+setGeneric("generateWithinTan", function(object, minus_condition, use_cpp = TRUE, ...) {
     standardGeneric("generateWithinTan")
 })
 
