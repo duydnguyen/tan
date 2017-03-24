@@ -4,13 +4,16 @@
 \alias{generateWithinTan}
 \title{Generate the within (or null) Adaptive Neyman tests}
 \usage{
-generateWithinTan(object, minus_condition)
+generateWithinTan(object, minus_condition, use_cpp = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
 
 \item{minus_condition}{TRUE if calculating the first (or minus ) condition;
 FALSE if calculating the second (or plus) condition.}
+
+\item{use_cpp}{TRUE if the implementation uses cpp functions;
+FALSE if the implementation uses R functions. R version is under development.}
 }
 \description{
 Generate the within (or null) Adaptive Neyman tests

@@ -15,7 +15,7 @@
 #' @examples
 AN.test <- function (X1, X2, candK = 1:ncol(X1), na.rm = FALSE, pool = FALSE, poolVarX, poolVarY)
 {
-    varX <- varY <- c()
+    varX <- varY <- T_stat <- c()
     if (na.rm) {
         na1 <- apply(X1, 2, FUN = function(x) sum(is.na(x)))
         na2 <- apply(X2, 2, FUN = function(x) sum(is.na(x)))
@@ -73,26 +73,31 @@ AN.test <- function (X1, X2, candK = 1:ncol(X1), na.rm = FALSE, pool = FALSE, po
     }
     else {
         for (kk in 1: ncol(X1)) {
-            # Compute Cov of columns: Var1 is the pooled var of all vars of columns of X
-            var1 <- poolVarX[kk]
-            var2 <- poolVarY[kk]
-            X <- colMeans(X1[, 1:kk, drop = FALSE]) - colMeans(X2[,
-                                                                  1:kk, drop = FALSE])
+            if ( ncol(X1) == 0 | ncol(X2) == 0 ) {
+                message("Peak with zero length!")
+                #varX <- varY <- T_stat <- numeric(0)
+                return(list(statistic = NA, p.value = NA, kstar = NA, varX = numeric(0), varY = numeric(0)))
+            }
+            else {
+                # Compute Cov of columns: Var1 is the pooled var of all vars of columns of X
+                var1 <- poolVarX[kk]
+                var2 <- poolVarY[kk]
+                X <- colMeans(X1[, 1:kk, drop = FALSE]) - colMeans(X2[,1:kk, drop = FALSE])
 
-            varX[kk] <- var1; varY[kk] <- var2
-            X <- X/sqrt(var1/n1 + var2/n2)
-            tmp <- sum(X^2 - 1)/sqrt(2 * kk)
-            if ( (tmp > Tstar) & (!is.na(tmp)) ) {
-                Tstar <- tmp
-                kstar <- kk
+                varX[kk] <- var1; varY[kk] <- var2
+                X <- X/sqrt(var1/n1 + var2/n2)
+                tmp <- sum(X^2 - 1)/sqrt(2 * kk)
+                if ( (tmp > Tstar) & (!is.na(tmp)) ) {
+                    Tstar <- tmp
+                    kstar <- kk
+                }
             }
         }
     }
-
-    T <- sqrt(2 * log(log(p))) * Tstar - (2 * log(log(p)) + log(log(log(p)))/2 -
+    T_stat <- sqrt(2 * log(log(p))) * Tstar - (2 * log(log(p)) + log(log(log(p)))/2 -
                                               log(4 * pi)/2)
-    p <- 1 - exp(-exp(-T))
-    res <- list(statistic = T, p.value = p, kstar = kstar, varX = varX, varY = varY)
+    p <- 1 - exp(-exp(-T_stat))
+    res <- list(statistic = T_stat, p.value = p, kstar = kstar, varX = varX, varY = varY)
     class(res) <- "htest"
     res
 }
