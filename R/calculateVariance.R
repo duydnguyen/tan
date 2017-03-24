@@ -15,6 +15,7 @@
     if (object@nSamples == 4) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
         lab_pool <- c('ab', 'ac', 'ad', 'bc', 'bd', 'cd')
+        sitesUnused <- c()
         for (bin in 1:length(object@wSites)) {
             print(paste('bin = ', bin))
             if (length(object@wSites[[bin]]) > 0 ) {
@@ -25,7 +26,7 @@
                 count <- 1
                 if (length(sites)>0) {
                     for (site in sites) {
-                        # print(paste('site = ', site))
+                        # print(paste(' -------------------- site = ', site))
                         if (minus_condition == TRUE) {
                             X1 <- object@coverage[[site]][1:2,]
                             Y1 <- object@coverage[[site]][3:4,]
@@ -79,6 +80,11 @@
                             varList[[count]] <- df
                             count <- count + 1
                         }
+                        # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
+                        # or manyrepeated counts: 03/24/17
+                        else {
+                            sitesUnused <- c(sitesUnused, site)
+                        }
                     } # end of for (site in sites)
                     ## Pooling variances across sites in bin
                     poolVar <- list()
@@ -98,7 +104,7 @@
                 }
             }
         } # end of bin
-
+        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
     } # end of if (n = 4)
     else if (object@nSamples == 3) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")

@@ -23,7 +23,7 @@ Recommend using \code{Global_lower <- floor(s.size/2)}}
 \item{use_cpp}{TRUE if the implementation uses cpp functions; FALSE if the implementation uses R functions.}
 }
 \value{
-A list of pooled variances for the given condition
+A list of pooled variances for the given condition.
 }
 \description{
 Calculuate pooled variance

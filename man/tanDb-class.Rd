@@ -44,5 +44,7 @@ variance is disscussed in our paper.}
 \item{\code{W}}{A matrix stores Adaptive Neyman tests under the null hypothesis. This is only for case sample size \code{n=2}.}
 
 \item{\code{PvalList}}{A list of results (\code{('pval','FDR')})for P-values.}
+
+\item{\code{sitesUnused}}{A vector of indices for unused sites due to bad quality peaks during the analysis.}
 }}
 

@@ -20,6 +20,7 @@
 #' @slot W2 A matrix stores within Adaptive Neyman tests for second condition.
 #' @slot W A matrix stores Adaptive Neyman tests under the null hypothesis. This is only for case sample size \code{n=2}.
 #' @slot PvalList A list of results (\code{('pval','FDR')})for P-values.
+#' @slot sitesUnused A vector of indices for unused sites due to bad quality peaks during the analysis.
 #'
 #' @return
 #' @export
@@ -31,7 +32,7 @@ setClass("tanDb",
                                          dN = "numeric", nSamples = "numeric",
                                          minusVar = "list", plusVar = "list", poolVar = "list",
                                          W1 = "matrix", W2 = "matrix", W = "matrix",
-                                         PvalList = "list"),
+                                         PvalList = "list", sitesUnused = "numeric"),
          prototype = prototype(coverage = list(), Designs = matrix())
          )
 
