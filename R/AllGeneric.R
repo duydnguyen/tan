@@ -93,12 +93,13 @@ setGeneric("generateWithinTan", function(object, minus_condition, use_cpp = TRUE
 #' FALSE if the implementation uses R functions. R version is under development.
 #' @param ignore_sitesUnused FALSE by default if considering sitesUnused when computing p-values of testing between;
 #' recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up
+#' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using TRUE
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, ...) {
+setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, na_impute = TRUE, ...) {
     standardGeneric("computePvalues")
 })
 

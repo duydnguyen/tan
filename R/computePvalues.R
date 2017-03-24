@@ -253,7 +253,7 @@
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
-                            p[idx[na_indices], j] <- -1
+                            p[idx[na_indices], j] <- NA
                         }
                     }
                 } # end if (minGlobal != Inf)
@@ -262,21 +262,24 @@
         # impute missing values
         if (any(is.na(p))){
             message(length(which(is.na(p))),' NAs found  (of ', length(p),')')
-            p[is.na(p)]=min(p[!is.na(p)])
+            if (na_impute) {
+                p[is.na(p)] = min(p[!is.na(p)])
+            }
         }
-        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm =TRUE))
+        Pc <- apply(p[, 1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm =TRUE))
         fdr <- p.adjust(as.vector(p),method='BH')
-        FDR <- matrix(0,nrow=nrow(p),ncol=ncol(p)+1)
+        FDR <- matrix(0,nrow = nrow(p), ncol = ncol(p)+1)
 
         for (i in 1:ncol(p)){
-            FDR[,i] <- fdr[(i-1)*nrow(p)+(1:nrow(p))]
+            FDR[, i] <- fdr[ (i-1) * nrow(p) + (1:nrow(p)) ]
         }
         if (any(is.na(FDR))){
             message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
-            FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
+            if (na_impute) {
+                FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
+            }
         }
-        ### CHANGE THIS TO THE RIGHT QUANTILE OF P-VALUES
-        FDR[,i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = TRUE))
+        FDR[, i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = TRUE))
         p <- cbind(p,Pc)
         colnames(p)[i+1] <- 'combined'
         colnames(FDR) <- colnames(p)

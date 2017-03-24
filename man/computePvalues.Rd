@@ -5,7 +5,7 @@
 \title{Compute p values for adaptive tests}
 \usage{
 computePvalues(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE,
-  ignore_sitesUnused = FALSE, ...)
+  ignore_sitesUnused = FALSE, na_impute = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -24,6 +24,8 @@ FALSE if the implementation uses R functions. R version is under development.}
 
 \item{ignore_sitesUnused}{FALSE by default if considering sitesUnused when computing p-values of testing between;
 recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up}
+
+\item{na_impute}{impute missing value of p-values matrix by taking global mean for all p;TRUE by default. Recommend using TRUE}
 }
 \description{
 Compute p values for adaptive tests
