@@ -113,7 +113,7 @@
                             test <- tan::AN_test(X[, design], Y[, design], na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
                         }
                         else {
-                            test <- tan::AN.test(X[, design], Y[, design], na.rm=TRUE, candK = candK)
+                            test <- tan::AN.test(X[, design], Y[, design], na.rm=TRUE)
                         }
                     }
                     minIndex <- min(length(test$varX), length(test$varY))
