@@ -81,7 +81,7 @@
                             count <- count + 1
                         }
                         # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
-                        # or manyrepeated counts: 03/24/17
+                        # or many repeated counts, or peakLength too small. 03/24/17
                         else {
                             sitesUnused <- c(sitesUnused, site)
                         }
@@ -104,7 +104,7 @@
                 }
             }
         } # end of bin
-        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
+        object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
     } # end of if (n = 4)
     else if (object@nSamples == 3) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
@@ -200,7 +200,7 @@
                 }
             }
         } # end of bin
-        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
+        object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
     }
     else if (object@nSamples == 2) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
@@ -288,7 +288,7 @@
                 Var[[bin]] <- poolVar
             }
         } # end of bin
-        object@sitesUnused <- c(object@sitesUnused, sitesUnused)
+        object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
     }
     # return results
     if (object@nSamples == 2) {

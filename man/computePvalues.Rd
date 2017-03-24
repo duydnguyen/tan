@@ -4,7 +4,8 @@
 \alias{computePvalues}
 \title{Compute p values for adaptive tests}
 \usage{
-computePvalues(object, quant, poolQuant, movAve, Global_lower)
+computePvalues(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE,
+  ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -17,6 +18,9 @@ computePvalues(object, quant, poolQuant, movAve, Global_lower)
 
 \item{Global_lower}{set lower bound for minGlobal (length of pooled var vector for each bins)
 Recommend using \code{Global_lower <- floor(s.size/2)}}
+
+\item{use_cpp}{TRUE if the implementation uses cpp functions;
+FALSE if the implementation uses R functions. R version is under development.}
 }
 \description{
 Compute p values for adaptive tests

@@ -1,4 +1,4 @@
-.computePvalues <- function(object, quant, poolQuant, movAve, Global_lower) {
+.computePvalues <- function(object, quant, poolQuant, movAve, Global_lower, ...) {
     if (object@nSamples == 4) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
         ## Name columns:
@@ -15,7 +15,7 @@
             }
         }
         labs <- labs[-c(1)]
-        ### Get dictinary {a:1, b:2, c:3, d:4}
+        ### Get dictionary {a:1, b:2, c:3, d:4}
         getDict <- function(s) {
             switch(s, a = 1, b = 2, c = 3, d = 4,
                    A = 5, B = 6, C = 7, D = 8)
@@ -35,14 +35,15 @@
         if (ncol(object@Ns)>1){
             temp <- colnames(Within)
             sampleNames <- unlist(strsplit(temp,' vs '))
-            ## For each interval, take average of all ChIP samples "ac" "bd" "ad" "bc" "AC" "BD" "AD" "BC"; 'ac' means take average between a and c for that interval and so on
+            ## For each interval, take average of all ChIP samples "ac" "bd" "ad" "bc" "AC" "BD" "AD" "BC";
+            # 'ac' means take average between a and c for that interval and so on
             H0.Ns <- rowMeans(object@Ns[,sampleNames])
             H0.Ns <-rep(H0.Ns,ncol(Within))
         } else {
             H0.Ns <-rep(object@Ns,ncol(Within))
         }
 
-        if (max(object@dN)<max(object@Ns)){
+        if (max(object@dN) < max(object@Ns)){
             object@dN <- c(object@dN, max(object@Ns))
         }
 
@@ -99,13 +100,21 @@
                     X <- rbind( get_m1, get_m2)
                     Y <- rbind( get_p1, get_p2)
                     if ( dim(X)[2] < object@s.size ) {
-                        # test <-  AN.test(X, Y, na.rm=TRUE)
-                        test <- tan::AN_test(X, Y, na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
+                        if (use_cpp) {
+                            test <- tan::AN_test(X, Y, na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
+                        }
+                        else {
+                            test <-  tan::AN.test(X, Y, na.rm=TRUE)
+                        }
                     }
                     else {
                         design <- object@Designs[site, ]
-                        # test <- AN.test(X[, design], Y[, design], na.rm=TRUE, candK = candK)
-                        test <- tan::AN_test(X[, design], Y[, design], na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
+                        if (use_cpp) {
+                            test <- tan::AN_test(X[, design], Y[, design], na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
+                        }
+                        else {
+                            test <- tan::AN.test(X[, design], Y[, design], na.rm=TRUE, candK = candK)
+                        }
                     }
                     minIndex <- min(length(test$varX), length(test$varY))
                     ## check minIndex > Global_lower (lower bound for pooled var vector of each bins)
@@ -115,7 +124,10 @@
                         }
                         minusVar_idx[[ii]] <- test$varX
                         plusVar_idx[[ii]] <- test$varY
-                    } else { # case minIndex <= Global_lower
+                    }
+                    # store all unused sites (minIndex <= Global_lower): minIndex = 0 -> var empty due to flat peak,
+                    # or many repeated counts, or peakLength too small. 03/24/17
+                    else {
                         # print(paste(" +++ minIndex <= Global_lower: ", minIndex, sep = ""))
                         minusVar_idx[[ii]] <- c()
                         plusVar_idx[[ii]] <- c()
@@ -124,19 +136,20 @@
                 } # end of for (ii in 1:length(idx))
                 print(paste(" +++ total sites Unused: ", length(sitesUnused), sep = ""))
                 print(paste(" +++ minGlobal = : ", minGlobal, sep = ""))
-                ### The following only works if 0 < minGlobal < Inf
                 ##################################################################
                 ### Compute pooled variances for between-TAN in bin(test j) or idx
                 ##################################################################
+                ### The following only works if 0 < minGlobal < Inf
                 if (minGlobal != Inf) {
                     matVar_minus <- matVar_plus <- matrix(NA, nrow = length(idx), ncol = minGlobal)
                     # check if sites whose len of var > Global_lower: if TRUE --> use pooled, o.w. use unpool
                     for (ii in 1:length(minusVar_idx)) {
                         if (length(minusVar_idx[[ii]]) > 0 ) {
-                            matVar_minus[ii,] <- minusVar_idx[[ii]][1:minGlobal]
-                            matVar_plus[ii,] <- plusVar_idx[[ii]][1:minGlobal]
+                            matVar_minus[ii, ] <- minusVar_idx[[ii]][1:minGlobal]
+                            matVar_plus[ii, ] <- plusVar_idx[[ii]][1:minGlobal]
                         }
                     }
+                    # TODO: COMBINE these two cases length(sitesUnused) > 0 or else
                     if (length(sitesUnused) > 0 ) {
                         varMinus <- apply(matVar_minus[-sitesUnused, ], 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
                         if ( length(varMinus) >= movAve ) {
@@ -146,7 +159,9 @@
                         if ( length(varPlus) >= movAve ) {
                             varPlus <- tan::movingAverage(varPlus, movAve)
                         }
-                    } else { # case sitesUnused = c(): use unpooled
+                    }
+                    # case sitesUnused = c(): use unpooled.
+                    else {
                         varMinus <- apply(matVar_minus, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
                         if ( length(varMinus) >= movAve ) {
                             varMinus <- tan::movingAverage(varMinus, movAve)
@@ -156,9 +171,13 @@
                             varPlus <- tan::movingAverage(varPlus, movAve)
                         }
                     }
-                } else {
-                    print("minGlobal = Inf")
                 }
+                # case minGlobal = Inf
+                else {
+                    message("minGlobal = Inf. Please consider larger bin sizes and/or filtering sites with zero variances and small peakLengths!")
+                }
+                # add siteUnused to slot:
+                object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
                 #########################################################
                 ### Compute Adaptive Neyman tests with pooled variance
                 #########################################################
@@ -178,24 +197,47 @@
                             ##  if site is NOT in sitesUnused --> use pooled var
                             #######################################################
                             if (ii %in% sitesUnused ) {
-                                ANT[ii] <- tan::AN_test(X, Y, na_rm=TRUE, pool= FALSE, poolVarX = NA,
-                                                   poolVarY = NA)$statistic
+                                if (use_cpp) {
+                                    ANT[ii] <- tan::AN_test(X, Y, na_rm=TRUE, pool= FALSE, poolVarX = NA, poolVarY = NA)$statistic
+                                }
+                                else {
+                                    ANT[ii] <- tan::AN.test(X, Y, na.rm=TRUE)$statistic
+                                }
                             } else {
                                 clen <- 1:length(varMinus)
-                                ANT[ii] <- tan::AN_test(X[, clen], Y[, clen], na_rm=TRUE, pool= TRUE, poolVarX = varMinus,
-                                                   poolVarY = varPlus)$statistic
+                                if (use_cpp) {
+                                    ANT[ii] <- tan::AN_test(X[, clen], Y[, clen], na_rm=TRUE, pool= TRUE, poolVarX = varMinus,
+                                                            poolVarY = varPlus)$statistic
+                                }
+                                else {
+                                    ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
+                                                            poolVarY = varPlus)$statistic
+                                }
+
                             }
                         } # end of if (dim(X)[2] < s.size)
                         else {
                             if (ii %in% sitesUnused ) {
                                 design <- object@Designs[site, ]
-                                ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
-                                                   poolVarY = NA)$statistic
+                                if (use_cpp) {
+                                    ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
+                                                            poolVarY = NA)$statistic
+                                }
+                                else {
+                                    ANT[ii] <- tan::AN.test(X[,design], Y[,design], na.rm = TRUE)$statistic
+                                }
+
                             } else {
                                 design <- object@Designs[site, ]
                                 clen <- 1:length(varMinus)
-                                ANT[ii] <- tan::AN_test(X[,design[clen]], Y[,design[clen]], na_rm = TRUE, pool = TRUE, poolVarX = varMinus,
-                                                   poolVarY = varPlus)$statistic
+                                if (use_cpp) {
+                                    ANT[ii] <- tan::AN_test(X[,design[clen]], Y[,design[clen]], na_rm = TRUE, pool = TRUE, poolVarX = varMinus,
+                                                            poolVarY = varPlus)$statistic
+                                }
+                                else {
+                                    ANT[ii] <- tan::AN.test(X[,design[clen]], Y[,design[clen]], na.rm = TRUE, pool = TRUE, poolVarX = varMinus,
+                                                            poolVarY = varPlus)$statistic
+                                }
                             }
                         }
 

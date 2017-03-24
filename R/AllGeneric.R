@@ -89,12 +89,14 @@ setGeneric("generateWithinTan", function(object, minus_condition, use_cpp = TRUE
 #' @param movAve A parameter to smooth the variance.
 #' @param Global_lower set lower bound for minGlobal (length of pooled var vector for each bins)
 #'    Recommend using \code{Global_lower <- floor(s.size/2)}
+#' @param use_cpp TRUE if the implementation uses cpp functions;
+#' FALSE if the implementation uses R functions. R version is under development.
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower) {
+setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ...) {
     standardGeneric("computePvalues")
 })
 
