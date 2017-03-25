@@ -209,7 +209,7 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 #' @param Between_cols A number of columns for testing between conditions.
 #'   (e.g., n = 4, there are 6*6 columns)
 #' @author Duy Nguyen on February 26, 2016
-#' @return Combined p-values with the given quantile.
+#' @return Combined p-values with the given quantile. Multiple testing correction using B-H method is also applied.
 #' @export
 #'
 #' @examples

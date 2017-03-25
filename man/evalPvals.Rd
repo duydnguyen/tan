@@ -17,7 +17,7 @@ evalPvals(P, total = nrow(P[["pval"]]), quant = 1, Between_cols)
 (e.g., n = 4, there are 6*6 columns)}
 }
 \value{
-Combined p-values with the given quantile.
+Combined p-values with the given quantile. Multiple testing correction using B-H method is also applied.
 }
 \description{
 Eval p-values from different quantile.
