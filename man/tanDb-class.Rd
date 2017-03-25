@@ -45,6 +45,6 @@ variance is disscussed in our paper.}
 
 \item{\code{PvalList}}{A list of results (\code{('pval','FDR')})for P-values.}
 
-\item{\code{sitesUnused}}{A vector of indices for unused sites due to bad quality peaks during the analysis.}
+\item{\code{sitesUnused}}{A vector of indices for unused sites due to bad quality peaks during testing within and between TAN.}
 }}
 

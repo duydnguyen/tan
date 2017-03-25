@@ -24,6 +24,7 @@
         total <-  nPeaks <- length(object@coverage)
         # number of columns between B: 6*6 columns
         Between_cols <- 36
+        sitesUnused_Within <- object@sitesUnused # @
         Within <- cbind(object@W1, object@W2)
         AvsB <- matrix(NA, nrow = total, ncol = Between_cols)
         colnames(AvsB) <- labs
@@ -32,30 +33,30 @@
         p <- matrix(NA, nrow = nrow(AvsB), ncol = ncol(AvsB))
         colnames(p) <- colnames(AvsB)
         H0 <- as.vector(Within)
-        if (ncol(object@Ns)>1){
+        if (ncol(object@Ns) > 1) {
             temp <- colnames(Within)
             sampleNames <- unlist(strsplit(temp,' vs '))
             ## For each interval, take average of all ChIP samples "ac" "bd" "ad" "bc" "AC" "BD" "AD" "BC";
             # 'ac' means take average between a and c for that interval and so on
-            H0.Ns <- rowMeans(object@Ns[,sampleNames])
-            H0.Ns <-rep(H0.Ns,ncol(Within))
+            H0.Ns <- rowMeans(object@Ns[, sampleNames]) # index from 1:total
+            H0.Ns <- rep(H0.Ns, ncol(Within))
         } else {
-            H0.Ns <-rep(object@Ns,ncol(Within))
+            H0.Ns <- rep(object@Ns, ncol(Within))
         }
 
         if (max(object@dN) < max(object@Ns)){
             object@dN <- c(object@dN, max(object@Ns))
         }
-
-        for (i in 1:length(object@dN)){
+        # evaluate H0.idx
+        for (i in 1:length(object@dN)) {
             print(paste('+++Bin = ', i))
-            if (i==1){
-                if (ncol(object@Ns)==1){
-                    idx <- which(object@Ns<=object@dN[[i]])
+            if (i == 1) {
+                if (ncol(object@Ns) == 1){
+                    idx <- which(object@Ns <= object@dN[[i]])
                 }
-                H0.idx <- which(H0.Ns<=object@dN[[i]])
+                H0.idx <- which(H0.Ns <= object@dN[[i]])
             } else {
-                if (ncol(object@Ns)==1){
+                if (ncol(object@Ns) == 1){
                     idx <- which(object@Ns > object@dN[[i-1]] & object@Ns <= object@dN[[i]])
                 }
                 H0.idx <- which(H0.Ns > object@dN[[i-1]] & H0.Ns <= object@dN[[i]])
@@ -66,20 +67,19 @@
             ###
             ##################################################################
             for (j in 1:ncomps){
-                print(paste('Testing', j ,colnames(p)[j]))
+                print(paste('Testing', j, colnames(p)[j]))
                 # eval idx = bin (test j)
-                if (ncol(object@Ns)>1){
+                if (ncol(object@Ns) > 1){
                     comp <- colnames(AvsB)[j]
                     sampleNames <- unlist(strsplit(comp,' vs '))
-                    CompNs <- rowMeans(object@Ns[,sampleNames])
-                    if (i==1){
-                        idx <- which(CompNs<=object@dN[[i]])
+                    CompNs <- rowMeans(object@Ns[, sampleNames])
+                    if (i == 1){
+                        idx <- which(CompNs <= object@dN[[i]])
                     } else {
                         idx <- which(CompNs > object@dN[[i-1]] & CompNs<=object@dN[[i]])
                     }
-                    if (length(idx)==0) next
+                    if (length(idx) == 0) next
                 }
-                # print(paste('+++idx = ', idx))
                 ## Get label indices
                 m1 <- getDict(substr(sampleNames[1], 1, 1))
                 m2 <- getDict(substr(sampleNames[1], 2, 2))
@@ -87,7 +87,7 @@
                 p2 <- getDict(substr(sampleNames[2], 2, 2))
                 minusVar_idx <- plusVar_idx <- list()
                 minGlobal <- Inf
-                # compute between-TAN
+                ## compute between-TAN variance
                 sitesUnused <- c()
                 for (ii in 1:length(idx)) {
                     # print(paste("ii = ", ii))
@@ -176,7 +176,7 @@
                 else {
                     message("minGlobal = Inf. Please consider larger bin sizes and/or filtering sites with zero variances and small peakLengths!")
                 }
-                # add siteUnused to slot:
+                # add siteUnused_between to slot:
                 object@sitesUnused <- unique(c(object@sitesUnused, idx[sitesUnused] ))
                 #########################################################
                 ### Compute Adaptive Neyman tests with pooled variance
@@ -198,21 +198,31 @@
                             #######################################################
                             if (ii %in% sitesUnused ) {
                                 if (use_cpp) {
-                                    ANT[ii] <- tan::AN_test(X, Y, na_rm=TRUE, pool= FALSE, poolVarX = NA, poolVarY = NA)$statistic
+                                    if (ignore_sitesUnused == FALSE) {
+                                        ANT[ii] <- tan::AN_test(X, Y, na_rm=TRUE, pool= FALSE, poolVarX = NA, poolVarY = NA)$statistic #@: return NA when ignore_SitesUnused = TRUE ???
+                                    }
+                                    else {
+                                        ANT[ii] <- NA
+                                    }
                                 }
                                 else {
-                                    ANT[ii] <- tan::AN.test(X, Y, na.rm=TRUE)$statistic
+                                    if (ignore_sitesUnused == FALSE) {
+                                        ANT[ii] <- tan::AN.test(X, Y, na.rm=TRUE)$statistic
+                                    }
+                                    else {
+                                        ANT[ii] <- NA
+                                    }
                                 }
                             }
                             else {
                                 clen <- 1:length(varMinus)
                                 if (use_cpp) {
                                     ANT[ii] <- tan::AN_test(X[, clen], Y[, clen], na_rm=TRUE, pool= TRUE, poolVarX = varMinus,
-                                                            poolVarY = varPlus)$statistic
+                                                                poolVarY = varPlus)$statistic
                                 }
                                 else {
-                                    ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
-                                                            poolVarY = varPlus)$statistic
+                                   ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
+                                                                poolVarY = varPlus)$statistic
                                 }
                             }
                         } # end of if (dim(X)[2] < s.size)
@@ -220,13 +230,22 @@
                             if (ii %in% sitesUnused ) {
                                 design <- object@Designs[site, ]
                                 if (use_cpp) {
-                                    ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
+                                    if (ignore_sitesUnused == FALSE) {
+                                        ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
                                                             poolVarY = NA)$statistic
+                                    }
+                                    else {
+                                        ANT[ii] <- NA
+                                    }
                                 }
                                 else {
-                                    ANT[ii] <- tan::AN.test(X[,design], Y[,design], na.rm = TRUE)$statistic
+                                    if (ignore_sitesUnused == FALSE) {
+                                        ANT[ii] <- tan::AN.test(X[,design], Y[,design], na.rm = TRUE)$statistic
+                                    }
+                                    else {
+                                        ANT[ii] <- NA
+                                    }
                                 }
-
                             } else {
                                 design <- object@Designs[site, ]
                                 clen <- 1:length(varMinus)
@@ -249,9 +268,13 @@
                         }
                         # new: 03/24/2017
                         else {
+                            # ignore unused sites from testing between
                             na_indices <- which(is.na(ANT) == TRUE)
+                            # ignore unused sites from testing within
+                            H0.idx_ <- setdiff(H0.idx, sitesUnused_Within)
+                            H0.idx_ <- rep(H0.idx_, ncol(Within))
                             p[idx, j] <- sapply(ANT, function(tanTest) {
-                                length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
+                                length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })
                             p[idx[na_indices], j] <- NA
                         }

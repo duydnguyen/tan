@@ -25,7 +25,7 @@ FALSE if the implementation uses R functions. R version is under development.}
 \item{ignore_sitesUnused}{FALSE by default if considering sitesUnused when computing p-values of testing between;
 recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up}
 
-\item{na_impute}{impute missing value of p-values matrix by taking global mean for all p;TRUE by default. Recommend using TRUE}
+\item{na_impute}{Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using TRUE}
 }
 \description{
 Compute p values for adaptive tests
