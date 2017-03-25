@@ -283,7 +283,7 @@
             } # end of for (j in 1:ncomps)
         } # end of for (i in 1:length(dN))
         # impute missing values
-        if (any(is.na(p))){
+        if (any(is.na(p))) {
             message(length(which(is.na(p))),' NAs found  (of ', length(p),')')
             if (na_impute) {
                 p[is.na(p)] = min(p[!is.na(p)])
