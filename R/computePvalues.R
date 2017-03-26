@@ -632,6 +632,7 @@
         }
         ### Main ###
         total <-  nPeaks <- length(object@coverage)
+        sitesUnused_Within <- object@sitesUnused # @
         ncomps <- 1 # only compute p-value for ab vs AB
         p <- matrix(0, nrow = total, ncol = 1)
         colnames(p) <- colnames(object@W)[1]
