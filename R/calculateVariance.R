@@ -10,7 +10,6 @@
         print("Calculating pool Variance for both conditions")
     }
     Var <- list()
-    ### nSamples = 4 ###
     if (object@nSamples == 4) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
         lab_pool <- c('ab', 'ac', 'ad', 'bc', 'bd', 'cd')
@@ -125,9 +124,8 @@
                 varList <- list()
                 minGlobal <- Inf
                 count <- 1
-                if (length(sites)>0) {
+                if (length(sites) > 0) {
                     for (site in sites) {
-                        # print(paste('site = ', site))
                         if (minus_condition == TRUE) {
                             X1 <- object@coverage[[site]][1:2,] #ab
                             Y1 <- object@coverage[[site]][c(1,3),] #ac
@@ -192,18 +190,26 @@
                     ## Pooling variances across sites in bin
                     poolVar <- list()
                     print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
-                    matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
-                    for (pair in lab_pool) {
-                        for (i in 1:length(varList)) {
-                            matVar[i,] <- varList[[i]][1:minGlobal, pair]
+                    ## Case: minGlobal < Inf
+                    if (minGlobal < Inf) {
+                        matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
+                        for (pair in lab_pool) {
+                            for (i in 1:length(varList)) {
+                                matVar[i, ] <- varList[[i]][1:minGlobal, pair]
+                            }
+                            var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
+                            if ( length(var) >= movAve ) {
+                                var <- tan::movingAverage(var, movAve)
+                            }
+                            poolVar[[pair]] <- var
                         }
-                        var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
-                        if ( length(var) >= movAve ) {
-                            var <- tan::movingAverage(var, movAve)
-                        }
-                        poolVar[[pair]] <- var
+                        Var[[bin]] <- poolVar
                     }
-                    Var[[bin]] <- poolVar
+                    ## Case: minGlobal = Inf
+                    else {
+                        message("minGlobal = Inf: 1. Variance vector for this bin returned NA, and 2. Sites in this bin stored in sitesUnused slot")
+                        Var[[bin]] <- NA
+                    }
                 }
             }
         } # end of bin
@@ -258,7 +264,6 @@
                             test2 <- tan::AN.test(X2[, design], Y2[, design], na.rm=TRUE)
                             test3 <- tan::AN.test(X3[, design], Y3[, design], na.rm=TRUE)
                         }
-
                     }
                     minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
                                       length(test1$varY), length(test2$varY), length(test3$varY)))
@@ -281,18 +286,26 @@
                 ## Pooling variances across sites in bin
                 poolVar <- list()
                 print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
-                matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
-                for (pair in lab_pool) {
-                    for (i in 1:length(varList)) {
-                        matVar[i,] <- varList[[i]][1:minGlobal, pair]
+                ## Case: minGlobal < Inf
+                if (minGlobal < Inf) {
+                    matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
+                    for (pair in lab_pool) {
+                        for (i in 1:length(varList)) {
+                            matVar[i,] <- varList[[i]][1:minGlobal, pair]
+                        }
+                        var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
+                        if ( length(var) >= movAve ) {
+                            var <- tan::movingAverage(var, movAve)
+                        }
+                        poolVar[[pair]] <- var
                     }
-                    var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
-                    if ( length(var) >= movAve ) {
-                        var <- tan::movingAverage(var, movAve)
-                    }
-                    poolVar[[pair]] <- var
+                    Var[[bin]] <- poolVar
                 }
-                Var[[bin]] <- poolVar
+                ## Case: minGlobal = Inf
+                else {
+                    message("minGlobal = Inf: 1. Variance vector for this bin returned NA, and 2. Sites in this bin stored in sitesUnused slot")
+                    Var[[bin]] <- NA
+                }
             }
         } # end of bin
         object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
