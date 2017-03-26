@@ -105,6 +105,7 @@
                     }
                     ## Case: minGlobal = Inf
                     else {
+                        message("minGlobal = Inf: 1. Variance vector for this bin returned NA, and 2. Sites in this bin stored in sitesUnused slot")
                         Var[[bin]] <- NA
                     }
                 }
