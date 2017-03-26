@@ -55,7 +55,7 @@
             if ( dim(X1)[2] < object@s.size ) {
                 if (use_cpp) {
                     # pooled is NOT NA
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[6]]
                         # clen <- 1:length(poolVarX)
                         clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
@@ -80,7 +80,7 @@
                 }
                 # if use_cpp = FALSE
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[6]]
                         # clen <- 1:length(poolVarX)
                         clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
@@ -107,7 +107,7 @@
             # peakLength > s.size
             else {
                 if (use_cpp) {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[6]]
                         clen <- 1:length(poolVarX)
@@ -133,7 +133,7 @@
                 }
                 # use_cpp = FALSE
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[6]]
                         clen <- 1:length(poolVarX)
@@ -205,7 +205,7 @@
             if ( dim(X1)[2] < object@s.size ) {
                 if (use_cpp) {
                     # pooled is NOT NA
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
                         # clen <- 1:length(poolVarX)
                         clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
@@ -231,7 +231,7 @@
                 }
                 # if use_cpp = FALSE
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
                         # clen <- 1:length(poolVarX)
                         clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
@@ -259,7 +259,7 @@
             # peakLength > s.size
             else {
                 if (use_cpp) {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
                         clen <- 1:length(poolVarX)
@@ -286,7 +286,7 @@
                 }
                 # use_cpp = FALSE
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
                         clen <- 1:length(poolVarX)
@@ -348,7 +348,7 @@
             if ( dim(X1)[2] < object@s.size ) {
                 if (use_cpp) {
                     # pooled is NOT NA
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         # ab vs AB
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
                         # clen <- 1:length(poolVarX)
@@ -377,7 +377,7 @@
                 }
                 # if use_cpp = FALSE
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         # ab vs AB
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
                         # clen <- 1:length(poolVarX)
@@ -407,7 +407,7 @@
             }
             else {
                 if (use_cpp) {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
                         clen <- 1:length(poolVarX)
@@ -433,7 +433,7 @@
                     }
                 }
                 else {
-                    if (is.na(pooled) == FALSE) {
+                    if (is.na(pooled)[1] == FALSE) {
                         design <- object@Designs[site, ]
                         poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
                         clen <- 1:length(poolVarX)
