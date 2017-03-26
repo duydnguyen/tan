@@ -9,7 +9,6 @@
     else if (object@nSamples == 2) {
         print("Calculating pool Variance for both conditions")
     }
-
     Var <- list()
     ### nSamples = 4 ###
     if (object@nSamples == 4) {
@@ -89,18 +88,25 @@
                     ## Pooling variances across sites in bin
                     poolVar <- list()
                     print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
-                    matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
-                    for (pair in lab_pool) {
-                        for (i in 1:length(varList)) {
-                            matVar[i,] <- varList[[i]][1:minGlobal, pair]
+                    ## Case: minGlobal < Inf
+                    if (minGlobal < Inf) {
+                        matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal) # @: Case minGlobal = Inf
+                        for (pair in lab_pool) {
+                            for (i in 1:length(varList)) {
+                                matVar[i, ] <- varList[[i]][1:minGlobal, pair]
+                            }
+                            var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
+                            if ( length(var) >= movAve ) {
+                                var <- tan::movingAverage(var, movAve)
+                            }
+                            poolVar[[pair]] <- var
                         }
-                        var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
-                        if ( length(var) >= movAve ) {
-                            var <- tan::movingAverage(var, movAve)
-                        }
-                        poolVar[[pair]] <- var
+                        Var[[bin]] <- poolVar
                     }
-                    Var[[bin]] <- poolVar
+                    ## Case: minGlobal = Inf
+                    else {
+                        Var[[bin]] <- NA
+                    }
                 }
             }
         } # end of bin
