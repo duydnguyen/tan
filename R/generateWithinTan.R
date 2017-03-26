@@ -198,88 +198,118 @@
                 Y2 <- object@coverage[[site]][5:6,]
                 X3 <- object@coverage[[site]][c(4,6),]
                 Y3 <- object@coverage[[site]][5:6,]
-
             }
             if (site %% 1000 == 0) {
                 print(paste('W, site: ', site))
             }
             if ( dim(X1)[2] < object@s.size ) {
                 if (use_cpp) {
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,1] <- tan::AN_test(X1[, clen], Y1[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,2] <- tan::AN_test(X2[, clen], Y2[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,3] <- tan::AN_test(X3[, clen], Y3[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    index <- index + 1
+                    # pooled is NOT NA
+                    if (is.na(pooled) == FALSE) {
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 1] <- tan::AN_test(X1[, clen], Y1[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 2] <- tan::AN_test(X2[, clen], Y2[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 3] <- tan::AN_test(X3[, clen], Y3[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
+                # if use_cpp = FALSE
                 else {
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,1] <- tan::AN.test(X1[, clen], Y1[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,2] <- tan::AN.test(X2[, clen], Y2[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,3] <- tan::AN.test(X3[, clen], Y3[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    index <- index + 1
+                    if (is.na(pooled) == FALSE) {
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index,1] <- tan::AN.test(X1[, clen], Y1[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index,2] <- tan::AN.test(X2[, clen], Y2[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index,3] <- tan::AN.test(X3[, clen], Y3[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
-
             }
+            # peakLength > s.size
             else {
                 if (use_cpp) {
-                    design <- object@Designs[site, ]
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN_test(X1[, design[clen]], Y1[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,1] <- rAN$statistic
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN_test(X2[, design[clen]], Y2[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,2] <- rAN$statistic
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN_test(X3[, design[clen]], Y3[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,3] <- rAN$statistic
-                    index <- index +1
+                    if (is.na(pooled) == FALSE) {
+                        design <- object@Designs[site, ]
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN_test(X1[, design[clen]], Y1[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,1] <- rAN$statistic
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN_test(X2[, design[clen]], Y2[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,2] <- rAN$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN_test(X3[, design[clen]], Y3[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,3] <- rAN$statistic
+                        index <- index +1
+                    }
+                    # pooled = NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
+                # use_cpp = FALSE
                 else {
-                    design <- object@Designs[site, ]
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN.test(X1[, design[clen]], Y1[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,1] <- rAN$statistic
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN.test(X2[, design[clen]], Y2[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,2] <- rAN$statistic
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN.test(X3[, design[clen]], Y3[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,3] <- rAN$statistic
-                    index <- index +1
+                    if (is.na(pooled) == FALSE) {
+                        design <- object@Designs[site, ]
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[2]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN.test(X1[, design[clen]], Y1[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,1] <- rAN$statistic
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[3]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN.test(X2[, design[clen]], Y2[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,2] <- rAN$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[3]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN.test(X3[, design[clen]], Y3[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,3] <- rAN$statistic
+                        index <- index +1
+                    }
+                    # pooled = NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
             }
         } # end of for(Sites)
@@ -314,95 +344,120 @@
             Y3 <- rbind( getA, getb)
             if (site %% 1000 == 0) {
                 print(paste('W, site: ', site))
-            } # STOP
+            }
             if ( dim(X1)[2] < object@s.size ) {
                 if (use_cpp) {
-                    # ab vs AB
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,1] <- tan::AN_test(X1[, clen], Y1[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    # aA vs bB
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,2] <- tan::AN_test(X2[, clen], Y2[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    # aB vs Ab
-                    poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,3] <- tan::AN_test(X3[, clen], Y3[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    index <- index + 1
+                    # pooled is NOT NA
+                    if (is.na(pooled) == FALSE) {
+                        # ab vs AB
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 1] <- tan::AN_test(X1[, clen], Y1[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        # aA vs bB
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 2] <- tan::AN_test(X2[, clen], Y2[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        # aB vs Ab
+                        poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 3] <- tan::AN_test(X3[, clen], Y3[, clen], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
+                # if use_cpp = FALSE
                 else {
-                    # ab vs AB
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,1] <- tan::AN.test(X1[, clen], Y1[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    # aA vs bB
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,2] <- tan::AN.test(X2[, clen], Y2[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    # aB vs Ab
-                    poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
-                    # clen <- 1:length(poolVarX)
-                    clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
-                    W[index,3] <- tan::AN.test(X3[, clen], Y3[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                               poolVarY = poolVarY)$statistic
-                    index <- index + 1
+                    if (is.na(pooled) == FALSE) {
+                        # ab vs AB
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 1] <- tan::AN.test(X1[, clen], Y1[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        # aA vs bB
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 2] <- tan::AN.test(X2[, clen], Y2[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        # aB vs Ab
+                        poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
+                        # clen <- 1:length(poolVarX)
+                        clen <- 1:min(length(poolVarX), dim(X1)[2]) # modified on 04/12/16
+                        W[index, 3] <- tan::AN.test(X3[, clen], Y3[, clen], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                                   poolVarY = poolVarY)$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
             }
             else {
                 if (use_cpp) {
-                    design <- object@Designs[site, ]
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
-                    clen <- 1:length(poolVarX)
-                    rAN <-tan::AN_test(X1[, design[clen]], Y1[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                       poolVarY=poolVarY)
-                    W[index,1] <- rAN$statistic
-
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN_test(X2[, design[clen]], Y2[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,2] <- rAN$statistic
-
-                    poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN_test(X3[, design[clen]], Y3[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,3] <- rAN$statistic
-                    index <- index + 1
+                    if (is.na(pooled) == FALSE) {
+                        design <- object@Designs[site, ]
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
+                        clen <- 1:length(poolVarX)
+                        rAN <-tan::AN_test(X1[, design[clen]], Y1[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                           poolVarY=poolVarY)
+                        W[index, 1] <- rAN$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN_test(X2[, design[clen]], Y2[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index, 2] <- rAN$statistic
+                        poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN_test(X3[, design[clen]], Y3[, design[clen]], na_rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index, 3] <- rAN$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
                 else {
-                    design <- object@Designs[site, ]
-                    poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
-                    clen <- 1:length(poolVarX)
-                    rAN <-tan::AN.test(X1[, design[clen]], Y1[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                       poolVarY=poolVarY)
-                    W[index,1] <- rAN$statistic
-
-                    poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN.test(X2[, design[clen]], Y2[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,2] <- rAN$statistic
-
-                    poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
-                    clen <- 1:length(poolVarX)
-                    rAN <- tan::AN.test(X3[, design[clen]], Y3[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
-                                        poolVarY=poolVarY)
-                    W[index,3] <- rAN$statistic
-                    index <- index + 1
+                    if (is.na(pooled) == FALSE) {
+                        design <- object@Designs[site, ]
+                        poolVarX <- pooled[[1]]; poolVarY <- pooled[[4]]
+                        clen <- 1:length(poolVarX)
+                        rAN <-tan::AN.test(X1[, design[clen]], Y1[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                           poolVarY=poolVarY)
+                        W[index,1] <- rAN$statistic
+                        poolVarX <- pooled[[2]]; poolVarY <- pooled[[5]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN.test(X2[, design[clen]], Y2[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,2] <- rAN$statistic
+                        poolVarX <- pooled[[3]]; poolVarY <- pooled[[6]]
+                        clen <- 1:length(poolVarX)
+                        rAN <- tan::AN.test(X3[, design[clen]], Y3[, design[clen]], na.rm=TRUE, pool=TRUE, poolVarX = poolVarX,
+                                            poolVarY=poolVarY)
+                        W[index,3] <- rAN$statistic
+                        index <- index + 1
+                    }
+                    # pooled is NA
+                    else {
+                        W[index, 1] <- W[index, 2] <- W[index, 3] <- NA
+                        index <- index + 1
+                    }
                 }
-
             }
         }
     } # end if (n=2)
