@@ -359,8 +359,6 @@
             object@dN <- c(object@dN, max(object@Ns))
         }
         ## evaluate H0.idx
-        # Init p.list for batch mode
-        p.list <- list()
         between <- list() # @
         for (i in bins) { # @
             print(paste('+++Bin = ', i))
@@ -584,8 +582,8 @@
                         if (ignore_sitesUnused == FALSE) {
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
-                                between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                             })
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                         # new: 03/24/2017
                         else {
@@ -598,16 +596,14 @@
                                 length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })
                             p[idx[na_indices], j] <- NA
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                     }
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)
-            p.list[[i]] <- between # @
+            object@p.list[[i]] <- between
         } # end of for (i in bins)
         ## update slots:
-        for (bin in bins) {
-            object@p.list[[bin]] <- p.list[[bin]]
-        }
         object@binsCompleted <- sort(c(object@binsCompleted, bins))
     } # end of if (n=3)
     else if (object@nSamples == 2) {
