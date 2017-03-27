@@ -36,6 +36,6 @@ setClass("tanDb",
                                          minusVar = "list", plusVar = "list", poolVar = "list",
                                          W1 = "matrix", W2 = "matrix", W = "matrix",
                                          PvalList = "list", pMat = "matrix", binsCompleted = "numeric", sitesUnused = "numeric"),
-         prototype = prototype(coverage = list(), Designs = matrix(), pMat = matrix())
+         prototype = prototype(coverage = list(), Designs = matrix(), pMat = matrix(), binsCompleted = c())
          )
 
