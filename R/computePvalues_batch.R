@@ -903,7 +903,7 @@
     }
     ## Combine p.list to create pMat
     if (create_pMat) {
-        message(paste("Combining the following bins : ", toString(object@binsCompleted), sep = '' ))
+        message(paste("Combining the following bins : ", toString(unique(object@binsCompleted)), sep = '' ))
         for (bin in unique(object@binsCompleted)) {
             between <- object@p.list[[bin]]
             if (length(between) > 0) {
