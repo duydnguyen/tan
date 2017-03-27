@@ -103,3 +103,26 @@ setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_l
     standardGeneric("computePvalues")
 })
 
+#' Compute p values for adaptive tests in batch mode
+#'
+#' @param object A \code{tanDb} object
+#' @param quant A quantile to obtain the combined p-values.
+#' @param poolQuant A quantile to pool the variances; DEFAULT is median.
+#' @param movAve A parameter to smooth the variance.
+#' @param Global_lower set lower bound for minGlobal (length of pooled var vector for each bins)
+#'    Recommend using \code{Global_lower <- floor(s.size/2)}
+#' @param use_cpp TRUE if the implementation uses cpp functions;
+#' FALSE if the implementation uses R functions. R version is under development.
+#' @param ignore_sitesUnused FALSE by default if considering sitesUnused when computing p-values of testing between;
+#' recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up
+#' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE
+#' @param bins A vector stores bin indices to be run in batch mode.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+setGeneric("computePvalues_batch", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, na_impute = TRUE,
+                                            bins, ...) {
+    standardGeneric("computePvalues_batch")
+})
