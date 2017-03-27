@@ -734,7 +734,7 @@
                     # store all unused sites (minIndex <= Global_lower): minIndex = 0 -> var empty due to flat peak,
                     # or many repeated counts, or peakLength too small. 03/24/17
                     else {
-                        print(paste(" +++ minIndex <= Global_lower: ", minIndex, sep = ""))
+                        # print(paste(" +++ minIndex <= Global_lower: ", minIndex, sep = ""))
                         minusVar_idx[[ii]] <- c()
                         plusVar_idx[[ii]] <- c()
                         sitesUnused <- c(sitesUnused, ii)
