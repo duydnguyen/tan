@@ -48,6 +48,8 @@ variance is disscussed in our paper.}
 \item{\code{pMat}}{A matrix with number of rows equal to number of peaks \code{x}. \code{pMat} stores all the p-values
 from running computePvalues in batch mode (useful when testing very large number of peaks).}
 
+\item{\code{p.list}}{A list to store results in data frame format when running batch mode.}
+
 \item{\code{binsCompleted}}{A vector stores all bins that are succesfullly run in batch mode.}
 
 \item{\code{sitesUnused}}{A vector of indices for unused sites due to bad quality peaks during testing within and between TAN.}
