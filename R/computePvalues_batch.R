@@ -1,6 +1,8 @@
 .computePvalues_batch <- function(object, quant, poolQuant, movAve, Global_lower, bins , ...) {
     message(paste("Number of Bins must be less than or equal to : ", length(object@dN)))
     message(paste("Testing bins : ", toString(bins), sep = '' ))
+    # Init pMat matrix
+    pMat <- matrix()
     if (object@nSamples == 4) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
         ## Name columns:
@@ -342,7 +344,7 @@
         colnames(AvsB) <- labs
         AvsB <- cbind(AvsB, Within)
         ncomps <- ncol(AvsB)
-        p <- matrix(NA, nrow = nrow(AvsB), ncol = ncol(AvsB))
+        pMat <- p <- matrix(NA, nrow = nrow(AvsB), ncol = ncol(AvsB))
         colnames(p) <- colnames(AvsB)
         H0 <- as.vector(Within)
         if (ncol(object@Ns) > 1) {
@@ -899,6 +901,19 @@
         names(P) <- c('pval','FDR')
         object@PvalList <- P
     }
+    ## Combine p.list to create pMat
+    if (create_pMat) {
+        message(paste("Combining the following bins : ", toString(object@binsCompleted), sep = '' ))
+        for (bin in object@binsCompleted) {
+            print(paste("Combine bin :", bin, sep = " "))
+            between <- object@p.list[[bin]]
+            for (j in 1:length(between)) {
+                pMat[between[[j]]$sites, j] <- between[[j]]$values
+            }
+        }
+        object@pMat <- pMat
+    }
+    ## final return
     object
 }
 

@@ -117,12 +117,16 @@ setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_l
 #' recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up
 #' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE
 #' @param bins A vector stores bin indices to be run in batch mode.
+#' @param create_pMat A logical value. TRUE to generate p-value matrix \code{pMat} by combining p.list in \code{binsCompleted}.
+#'    Default is FALSE.
+#'
+#' @param ...
 #'
 #' @return
 #' @export
 #'
 #' @examples
 setGeneric("computePvalues_batch", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, na_impute = TRUE,
-                                            bins, ...) {
+                                            bins, create_pMat = FALSE,...) {
     standardGeneric("computePvalues_batch")
 })
