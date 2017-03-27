@@ -606,6 +606,7 @@
         } # end of for (i in bins)
         ## update slots:
         for (bin in bins) {
+            print("+++ return slot p.list")
             object@p.list[[bin]] <- p.list[[bin]]
         }
         object@binsCompleted <- sort(c(object@binsCompleted, bins))
