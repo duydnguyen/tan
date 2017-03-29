@@ -2,7 +2,7 @@
     if (object@nSamples == 4) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
         ## Name columns:
-        # colnames(object@W1) <- c('ab vs cd', 'ac vs bd', 'ad vs bc' )
+        colnames(object@W1) <- c('ab vs cd', 'ac vs bd', 'ad vs bc' )
         colnames(object@W2) <- c('AB vs CD', 'AC vs BD', 'AD vs BC' )
         minLabs <- c('ab','ac','ad','bc','bd','cd')
         plusLabs <- c('AB','AC','AD','BC','BD','CD')
