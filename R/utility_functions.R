@@ -208,13 +208,14 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 #' @param nSamples The sample size for each conditions (n1=n2=n).
 #' @param quant Quantile used for combined pvales.
 #' @param BH  A logical if multiple testing correction using B-H method is applied. Defaul is FALSE.
+#' @param na.rm logical; if true, any NA and NaN's are removed before computing.
 #'
 #' @author Duy Nguyen on February 26, 2016
 #' @return Combined (Raw) p-values with the given quantile.
 #' @export
 #'
 #' @examples
-evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FALSE ) {
+evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FALSE, na.rm = TRUE ) {
     ## Extract original p.vals matrix p without quantile q
     p <- P
     p <- p[, 1:( ncol(p) - 1)]
@@ -222,11 +223,11 @@ evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FA
     Pc <- rep(NA, dim(P)[1])
     if (nSamples == 4) {
         Between_cols <- 6 * 6
-        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
+        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = na.rm))
     }
     else if (nSamples == 3) {
         Between_cols <- 3 * 3
-        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
+        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = na.rm))
     }
     else if (nSamples == 2) {
         Pc <- p
