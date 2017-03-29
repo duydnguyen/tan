@@ -20,6 +20,11 @@
 #' @slot W2 A matrix stores within Adaptive Neyman tests for second condition.
 #' @slot W A matrix stores Adaptive Neyman tests under the null hypothesis. This is only for case sample size \code{n=2}.
 #' @slot PvalList A list of results (\code{('pval','FDR')})for P-values.
+#' @slot pMat A matrix with number of rows equal to number of peaks \code{x}. \code{pMat} stores all the p-values
+#'    from running computePvalues in batch mode (useful when testing very large number of peaks).
+#' @slot p.list A list to store results in data frame format when running batch mode.
+#' @slot binsCompleted A vector stores all bins that are succesfullly run in batch mode.
+#' @slot sitesUnused A vector of indices for unused sites due to bad quality peaks during testing within and between TAN.
 #'
 #' @return
 #' @export
@@ -31,7 +36,7 @@ setClass("tanDb",
                                          dN = "numeric", nSamples = "numeric",
                                          minusVar = "list", plusVar = "list", poolVar = "list",
                                          W1 = "matrix", W2 = "matrix", W = "matrix",
-                                         PvalList = "list"),
-         prototype = prototype(coverage = list(), Designs = matrix())
+                                         PvalList = "list", pMat = "matrix", p.list = "list", binsCompleted = "numeric", sitesUnused = "numeric"),
+         prototype = prototype(coverage = list(), Designs = matrix(), pMat = matrix())
          )
 

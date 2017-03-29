@@ -4,7 +4,8 @@
 \alias{evalPvals}
 \title{Eval p-values from different quantile.}
 \usage{
-evalPvals(P, total = nrow(P[["pval"]]), quant = 1, Between_cols)
+evalPvals(P, total = nrow(P[["pval"]]), quant = 1, nSamples, BH = FALSE,
+  na.rm = TRUE)
 }
 \arguments{
 \item{P}{A matrix of P values whose columns a testing between samples across conditions.}
@@ -13,11 +14,14 @@ evalPvals(P, total = nrow(P[["pval"]]), quant = 1, Between_cols)
 
 \item{quant}{Quantile used for combined pvales.}
 
-\item{Between_cols}{A number of columns for testing between conditions.
-(e.g., n = 4, there are 6*6 columns)}
+\item{nSamples}{The sample size for each conditions (n1=n2=n).}
+
+\item{BH}{A logical if multiple testing correction using B-H method is applied. Defaul is FALSE.}
+
+\item{na.rm}{logical; if true, any NA and NaN's are removed before computing.}
 }
 \value{
-Combined p-values with the given quantile.
+Combined (Raw) p-values with the given quantile.
 }
 \description{
 Eval p-values from different quantile.

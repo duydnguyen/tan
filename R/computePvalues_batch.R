@@ -1,4 +1,8 @@
-.computePvalues <- function(object, quant, poolQuant, movAve, Global_lower, ...) {
+.computePvalues_batch <- function(object, quant, poolQuant, movAve, Global_lower, bins , ...) {
+    message(paste("Number of Bins must be less than or equal to : ", length(object@dN)))
+    message(paste("Testing bins : ", toString(bins), sep = '' ))
+    # Init pMat matrix
+    pMat <- matrix()
     if (object@nSamples == 4) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
         ## Name columns:
@@ -48,7 +52,8 @@
             object@dN <- c(object@dN, max(object@Ns))
         }
         # evaluate H0.idx
-        for (i in 1:length(object@dN)) {
+        between <- list()
+        for (i in bins) {
             print(paste('+++Bin = ', i))
             if (i == 1) {
                 if (ncol(object@Ns) == 1){
@@ -218,11 +223,11 @@
                                 clen <- 1:length(varMinus)
                                 if (use_cpp) {
                                     ANT[ii] <- tan::AN_test(X[, clen], Y[, clen], na_rm=TRUE, pool= TRUE, poolVarX = varMinus,
-                                                                poolVarY = varPlus)$statistic
+                                                            poolVarY = varPlus)$statistic
                                 }
                                 else {
-                                   ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
-                                                                poolVarY = varPlus)$statistic
+                                    ANT[ii] <- tan::AN.test(X[, clen], Y[, clen], na.rm=TRUE, pool= TRUE, poolVarX = varMinus,
+                                                            poolVarY = varPlus)$statistic
                                 }
                             }
                         } # end of if (dim(X)[2] < s.size)
@@ -232,7 +237,7 @@
                                 if (use_cpp) {
                                     if (ignore_sitesUnused == FALSE) {
                                         ANT[ii] <- tan::AN_test(X[,design], Y[,design], na_rm = TRUE, pool = FALSE, poolVarX = NA,
-                                                            poolVarY = NA)$statistic
+                                                                poolVarY = NA)$statistic
                                     }
                                     else {
                                         ANT[ii] <- NA
@@ -265,6 +270,7 @@
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j])
                         }
                         # new: 03/24/2017
                         else {
@@ -277,38 +283,15 @@
                                 length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })
                             p[idx[na_indices], j] <- NA
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                     }
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)
-        } # end of for (i in 1:length(dN))
-        # impute missing values
-        if (any(is.na(p))) {
-            message(length(which(is.na(p))),' NAs found  (of ', length(p),')')
-            if (na_impute) {
-                p[is.na(p)] = min(p[!is.na(p)])
-            }
-        }
-        Pc <- apply(p[, 1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm =TRUE))
-        fdr <- p.adjust(as.vector(p),method='BH')
-        FDR <- matrix(0,nrow = nrow(p), ncol = ncol(p)+1)
-
-        for (i in 1:ncol(p)){
-            FDR[, i] <- fdr[ (i-1) * nrow(p) + (1:nrow(p)) ]
-        }
-        if (any(is.na(FDR))){
-            message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
-            if (na_impute) {
-                FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
-            }
-        }
-        FDR[, i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = TRUE))
-        p <- cbind(p,Pc)
-        colnames(p)[i+1] <- 'combined'
-        colnames(FDR) <- colnames(p)
-        P <- list(p,FDR)
-        names(P) <- c('pval','FDR')
-        object@PvalList <- P
+            object@p.list[[i]] <- between
+        } # end of for (i in bins)
+        ## update slots:
+        object@binsCompleted <- sort(c(object@binsCompleted, bins))
     } # end of if (n=4)
     else if (object@nSamples == 3) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
@@ -340,7 +323,7 @@
         colnames(AvsB) <- labs
         AvsB <- cbind(AvsB, Within)
         ncomps <- ncol(AvsB)
-        p <- matrix(NA, nrow = nrow(AvsB), ncol = ncol(AvsB))
+        pMat <- p <- matrix(NA, nrow = nrow(AvsB), ncol = ncol(AvsB))
         colnames(p) <- colnames(AvsB)
         H0 <- as.vector(Within)
         if (ncol(object@Ns) > 1) {
@@ -356,8 +339,9 @@
         if (max(object@dN) < max(object@Ns)){
             object@dN <- c(object@dN, max(object@Ns))
         }
-        # evaluate H0.idx
-        for (i in 1:length(object@dN)){
+        ## evaluate H0.idx
+        between <- list() # @
+        for (i in bins) { # @
             print(paste('+++Bin = ', i))
             if (i==1){
                 if (ncol(object@Ns) == 1){
@@ -580,6 +564,7 @@
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                         # new: 03/24/2017
                         else {
@@ -592,36 +577,15 @@
                                 length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })
                             p[idx[na_indices], j] <- NA
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                     }
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)
-        } # end of for (i in 1:length(dN))
-        # impute missing values
-        if (any(is.na(p))) {
-            message(length(which(is.na(p))),' NAs found  (of ', length(p),')')
-            if (na_impute) {
-                p[is.na(p)] = min(p[!is.na(p)])
-            }
-        }
-        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm =TRUE))
-        fdr <- p.adjust(as.vector(p),method='BH')
-        FDR <- matrix(0,nrow=nrow(p),ncol=ncol(p)+1)
-
-        for (i in 1:ncol(p)){
-            FDR[,i] <- fdr[(i-1)*nrow(p)+(1:nrow(p))]
-        }
-        if (any(is.na(FDR))){
-            message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
-            FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
-        }
-        FDR[,i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = TRUE))
-        p <- cbind(p,Pc)
-        colnames(p)[i+1] <- 'combined'
-        colnames(FDR) <- colnames(p)
-        P <- list(p,FDR)
-        names(P) <- c('pval','FDR')
-        object@PvalList <- P
+            object@p.list[[i]] <- between
+        } # end of for (i in bins)
+        ## update slots:
+        object@binsCompleted <- sort(c(object@binsCompleted, bins))
     } # end of if (n=3)
     else if (object@nSamples == 2) {
         print(paste("Computing p-values for sample size n = ", object@nSamples), sep = "")
@@ -647,11 +611,12 @@
         } else {
             H0.Ns <-rep(object@Ns,ncol(object@W))
         }
-        if (max(object@dN)<max(object@Ns)){
+        if (max(object@dN) < max(object@Ns)){
             object@dN <- c(object@dN, max(object@Ns))
         }
         # evaluate H0.idx
-        for (i in 1:length(object@dN)){
+        between <- list()
+        for (i in bins){
             print(paste('+++Bin = ', i))
             if (i == 1){
                 if (ncol(object@Ns) == 1){
@@ -874,6 +839,7 @@
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx] >= tanTest )) / length(H0.idx)
                             })
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j])
                         }
                         # new: 03/24/2017
                         else {
@@ -886,37 +852,32 @@
                                 length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })
                             p[idx[na_indices], j] <- NA
+                            between[[j]] <- data.frame("sites" = idx, "values" = p[idx, j]) # @
                         }
                     }
                 } # end if (minGlobal != Inf)
             } # end of for (j in 1:ncomps)
-        } # end of for (i in 1:length(dN))
-        # impute missing values
-        if (any(is.na(p))) {
-            message(length(which(is.na(p))),' NAs found  (of ', length(p),')')
-            if (na_impute) {
-                p[is.na(p)] = min(p[!is.na(p)])
+            object@p.list[[i]] <- between
+        } # end of for (i in bins)
+        ## update slots:
+        object@binsCompleted <- sort(c(object@binsCompleted, bins))
+    }
+    ## Combine p.list to create pMat
+    if (create_pMat) {
+        message(paste("Combining the following bins : ", toString(unique(object@binsCompleted)), sep = '' ))
+        for (bin in unique(object@binsCompleted)) {
+            between <- object@p.list[[bin]]
+            if (length(between) > 0) {
+                print(paste("Combine bin :", bin, sep = " "))
+                for (j in 1:length(between)) {
+                    pMat[between[[j]]$sites, j] <- between[[j]]$values
+                }
             }
         }
-        Pc <- p
-        fdr <- p.adjust(as.vector(p),method='BH')
-        FDR <- matrix(0,nrow=nrow(p),ncol=ncol(p)+1)
-        for (i in 1:ncol(p)){
-            FDR[,i] <- fdr[(i-1)*nrow(p)+(1:nrow(p))]
-        }
-        if (any(is.na(FDR))){
-            message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
-            FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
-        }
-        FDR[, i+1] <- FDR[, 1]
-        p <- cbind(p,Pc)
-        colnames(p)[i+1] <- 'combined'
-        colnames(FDR) <- colnames(p)
-        P <- list(p,FDR)
-        names(P) <- c('pval','FDR')
-        object@PvalList <- P
+        object@pMat <- pMat
     }
+    ## final return
     object
 }
 
-setMethod("computePvalues", signature("tanDb"), .computePvalues)
+setMethod("computePvalues_batch", signature("tanDb"), .computePvalues_batch)

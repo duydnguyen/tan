@@ -4,7 +4,8 @@
 \alias{calculateVariance}
 \title{Calculuate pooled variance}
 \usage{
-calculateVariance(object, minus_condition, Global_lower, poolQuant, movAve)
+calculateVariance(object, minus_condition, Global_lower, poolQuant, movAve,
+  use_cpp = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -18,9 +19,12 @@ Recommend using \code{Global_lower <- floor(s.size/2)}}
 \item{poolQuant}{A pooled quantile at each genomic position.}
 
 \item{movAve}{A number of points for moving average.}
+
+\item{use_cpp}{TRUE if the implementation uses cpp functions;
+FALSE if the implementation uses R functions. R version is under development.}
 }
 \value{
-A list of pooled variances for the given condition
+A list of pooled variances for the given condition.
 }
 \description{
 Calculuate pooled variance
