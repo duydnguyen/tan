@@ -205,35 +205,56 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 #'
 #' @param P A matrix of P values whose columns a testing between samples across conditions.
 #' @param total Total genomic intervals.
+#' @param nSamples The sample size for each conditions (n1=n2=n).
 #' @param quant Quantile used for combined pvales.
-#' @param Between_cols A number of columns for testing between conditions.
-#'   (e.g., n = 4, there are 6*6 columns)
+#' @param BH  A logical if multiple testing correction using B-H method is applied. Defaul is FALSE.
+#'
 #' @author Duy Nguyen on February 26, 2016
-#' @return Combined p-values with the given quantile. Multiple testing correction using B-H method is also applied.
+#' @return Combined (Raw) p-values with the given quantile.
 #' @export
 #'
 #' @examples
-evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, Between_cols) {
+evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FALSE ) {
     ## Extract original p.vals matrix p without quantile q
     p <- P[['pval']]
     p <- p[, 1:( ncol(p) - 1)]
-    Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
-    fdr <- p.adjust(as.vector(p),method='BH')
-    FDR <- matrix(0,nrow=nrow(p),ncol=ncol(p)+1)
-    for (i in 1:ncol(p)){
-        FDR[,i] <- fdr[(i-1)*nrow(p)+(1:nrow(p))]
+    Between_cols <- numeric()
+    Pc <- rep(NA, dim(P)[1])
+    if (nSamples == 4) {
+        Between_cols <- 6 * 6
+        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
     }
-    if (any(is.na(FDR))){
-        message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
-        FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
+    else if (nSamples == 3) {
+        Between_cols <- 3 * 3
+        Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
     }
-    FDR[,i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
-    fdr <- matrix(NA,nrow=total, ncol=ncol(P[['FDR']]))
-    fdr[1:total,] <- FDR
-    colnames(fdr) <- colnames(P[['FDR']])
-    last_col <- dim(fdr)[2]
-    Pvals = fdr[,last_col]
-    return(Pvals)
+    else if (nSamples == 2) {
+        Pc <- p
+    }
+    if (BH) {
+        Pc <- p.adjust(Pc, method = "BH")
+    }
+    # fdr <- p.adjust(as.vector(p), method='BH')
+    # FDR <- matrix(0,nrow=nrow(p),ncol=ncol(p)+1)
+    # for (i in 1:ncol(p)){
+    #     FDR[,i] <- fdr[(i-1)*nrow(p)+(1:nrow(p))]
+    # }
+    # if (any(is.na(FDR))){
+    #     message(length(which(is.na(FDR))),' NAs found  (of ', length(FDR),')')
+    #     FDR[is.na(FDR)]=min(FDR[!is.na(FDR)])
+    # }
+    # if (nSamples %in% c(3,4)) {
+    #     FDR[, i+1] <- apply(FDR[,1:Between_cols], 1, function(x) quantile(x, probs = quant))
+    # }
+    # else if (nSamples == 2) {
+    #     FDR[, i+1] <- FDR[, 1]
+    # }
+    # fdr <- matrix(NA,nrow=total, ncol=ncol(P[['FDR']]))
+    # fdr[1:total,] <- FDR
+    # colnames(fdr) <- colnames(P[['FDR']])
+    # last_col <- dim(fdr)[2]
+    # Pvals = fdr[,last_col]
+    return(Pc)
 }
 
 #' @useDynLib tan
