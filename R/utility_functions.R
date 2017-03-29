@@ -216,7 +216,7 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 #' @examples
 evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FALSE ) {
     ## Extract original p.vals matrix p without quantile q
-    p <- P[['pval']]
+    p <- P
     p <- p[, 1:( ncol(p) - 1)]
     Between_cols <- numeric()
     Pc <- rep(NA, dim(P)[1])
