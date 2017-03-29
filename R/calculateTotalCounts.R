@@ -40,7 +40,7 @@
                 }
                 # dim X <- nxT (number of reps x width of interval)
                 X <- object@coverage[[site]][1:4,]
-                X[,idNA] <- 0
+                X[, idNA] <- 0
                 # dim Y <- nxT (number of reps x width of interval)
                 Y <- object@coverage[[site]][5:8,]
                 Y[, idNA] <- 0
