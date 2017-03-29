@@ -257,6 +257,39 @@ evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FA
     return(Pc)
 }
 
+#' Title
+#'
+#' @param p.list A list resulted from running \code{computePvals_batch}.
+#' @param totalPeaks A total number of peaks tested in batch mode.
+#' @param nSamples The sample size for each conditions (n1=n2=n).
+#'
+#' @return
+#' @export
+#'
+#' @examples
+create_pMat <- function(p.list, totalPeaks, nSamples) {
+    pMat <- matrix()
+    if (nSamples == 4) {
+        pMat <- matrix(NA, nrow = totalPeaks, ncol = 6 * 6 + 3 * 2)
+    }
+    else if (nSamples == 3) {
+        pMat <- matrix(NA, nrow = totalPeaks, ncol = 3 * 3 + 3 * 2)
+    }
+    else if (nSamples == 2) {
+        pMat <- matrix(NA, nrow = totalPeaks, ncol = 1)
+    }
+    for (bin in 1:length(p.list)) {
+        between <- p.list[[bin]]
+        if (length(between) > 0) {
+            print(paste("Combine bin :", bin, sep = " "))
+            for (j in 1:length(between)) {
+                pMat[between[[j]]$sites, j] <- between[[j]]$values
+            }
+        }
+    }
+    pMat
+}
+
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp
 NULL
