@@ -203,7 +203,7 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 
 #' Eval p-values from different quantile.
 #'
-#' @param P A matrix of P values whose columns a testing between samples across conditions.
+#' @param P a slot PvalList of class tanDb.
 #' @param total Total genomic intervals.
 #' @param nSamples The sample size for each conditions (n1=n2=n).
 #' @param quant Quantile used for combined pvales.
@@ -217,7 +217,7 @@ aneyman <- function(X,Y, maxdim = floor(nrow(X) / 2), poolVar = FALSE, numPar = 
 #' @examples
 evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FALSE, na.rm = TRUE ) {
     ## Extract original p.vals matrix p without quantile q
-    p <- P
+    p <- P[['pval']]
     p <- p[, 1:( ncol(p) - 1)]
     Between_cols <- numeric()
     Pc <- rep(NA, dim(P)[1])

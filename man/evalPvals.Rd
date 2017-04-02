@@ -8,7 +8,7 @@ evalPvals(P, total = nrow(P[["pval"]]), quant = 1, nSamples, BH = FALSE,
   na.rm = TRUE)
 }
 \arguments{
-\item{P}{A matrix of P values whose columns a testing between samples across conditions.}
+\item{P}{a slot PvalList of class tanDb.}
 
 \item{total}{Total genomic intervals.}
 
