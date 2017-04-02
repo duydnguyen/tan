@@ -10,7 +10,9 @@
             Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform)
         } else {
             # message("s.size > width of genomic peak: No Sampling required! ")
-            Designs[site, ] <- tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform)
+            design <- unique(tan::Sampling(s.size = s.size, start = 1 , end = peakWidth, LHD = LHD, Uniform = Uniform))
+            design <- c(design, rep(FALSE, s.size - length(design)))
+            Designs[site, ] <- design
         }
 
     }
