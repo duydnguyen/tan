@@ -220,7 +220,7 @@ evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FA
     p <- P[['pval']]
     p <- p[, 1:( ncol(p) - 1)]
     Between_cols <- numeric()
-    Pc <- rep(NA, dim(P)[1])
+    Pc <- rep(NA, dim(p)[1])
     if (nSamples == 4) {
         Between_cols <- 6 * 6
         Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = na.rm))
