@@ -117,32 +117,66 @@ context("calculateTotalCounts")
 # })
 
 
+## test_that(" Simulation with n = 4", {
+##     ### parameters ###
+##     s.size <- 500; LHD <- TRUE; Uniform <- FALSE
+##     bNormWidth <- FALSE; bSampleMean <- FALSE
+##     # quantile vector for binning
+##     quantprobs <- seq(0, 1, 0.05) # this is the default binning for down sampling
+##     ## set lower bound for minGlobal (length of pooled var vector for each bins)
+##     Global_lower <- 0 # defaul value: Global_lower <- 0
+##     ## pooled quantile at each genomic position: (for calculateVariance())
+##     poolQuant <- 0.5
+##     # number of points for moving average
+##     movAve <- 20
+##     ## pooled quantile at each genomic position:
+##     poolQuant <- 0.5
+##     ### coverage from Simulation
+##     # path <- "/p/keles/DBChIP/volume2/Summaries/2016_01_23/Generated/EmpPvalPool/"
+##     path <- "../Data/Simulation/"
+##     load(file = paste(path, "CoverageList.RData", sep = ""))
+##     sim <- 1
+##     coverage <- coverageList[[sim]]
+##     coverage[["labels"]] <- coverage[["labels_new"]] <- NULL
+##     tanDb <- new("tanDb", coverage = coverage)
+##     print("create Designs")
+##     tanDb <- createDesigns(tanDb, s.size = s.size, LHD = LHD, Uniform = Uniform )
+##     tanDb <- calculateTotalCounts(tanDb, nSamples = 4, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
+##     # test:
+##     load(file = paste(path, 'Ns.RData', sep =''))
+##     expect_equal(tanDb@Ns, Ns)
+## })
+
 test_that(" Simulation with n = 4", {
-    ### parameters ###
-    s.size <- 500; LHD <- TRUE; Uniform <- FALSE
-    bNormWidth <- FALSE; bSampleMean <- FALSE
-    # quantile vector for binning
-    quantprobs <- seq(0, 1, 0.05) # this is the default binning for down sampling
-    ## set lower bound for minGlobal (length of pooled var vector for each bins)
-    Global_lower <- 0 # defaul value: Global_lower <- 0
-    ## pooled quantile at each genomic position: (for calculateVariance())
-    poolQuant <- 0.5
-    # number of points for moving average
-    movAve <- 20
-    ## pooled quantile at each genomic position:
-    poolQuant <- 0.5
+    source("../../../../Simulation/R/params_DA.R")
     ### coverage from Simulation
-    # path <- "/p/keles/DBChIP/volume2/Summaries/2016_01_23/Generated/EmpPvalPool/"
-    path <- "../Data/Simulation/"
-    load(file = paste(path, "CoverageList.RData", sep = ""))
+    path <- "../../../../Simulation/DeriveData/"
+    load(file = paste(path, "coverageList.RData", sep = ""))
     sim <- 1
     coverage <- coverageList[[sim]]
     coverage[["labels"]] <- coverage[["labels_new"]] <- NULL
-    tanDb <- new("tanDb", coverage = coverage)
+    tanDb_test <- new("tanDb", coverage = coverage)
     print("create Designs")
-    tanDb <- createDesigns(tanDb, s.size = s.size, LHD = LHD, Uniform = Uniform )
-    tanDb <- calculateTotalCounts(tanDb, nSamples = 4, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
+    tanDb_test <- createDesigns(tanDb_test, s.size = s.size, LHD = LHD, Uniform = Uniform )
+    tanDb_test <- calculateTotalCounts(tanDb_test, nSamples = 4, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
     # test:
-    load(file = paste(path, 'Ns.RData', sep =''))
-    expect_equal(tanDb@Ns, Ns)
+    load(file = paste(path, 'tanDb_n4.RData', sep =''))
+    expect_equal(tanDb_test@Ns, tanDb@Ns)
+})
+
+test_that(" Simulation with n = 3", {
+    source("../../../../Simulation/R/params_DA.R")
+    ### coverage from Simulation
+    path <- "../../../../Simulation/DeriveData/"
+    load(file = paste(path, "coverageList.RData", sep = ""))
+    sim <- 1
+    coverage <- coverageList[[sim]]
+    coverage[["labels"]] <- coverage[["labels_new"]] <- NULL
+    tanDb_test <- new("tanDb", coverage = coverage)
+    print("create Designs")
+    tanDb_test <- createDesigns(tanDb_test, s.size = s.size, LHD = LHD, Uniform = Uniform )
+    tanDb_test <- calculateTotalCounts(tanDb_test, nSamples = 4, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
+    # test:
+    load(file = paste(path, 'tanDb_n3.RData', sep =''))
+    expect_equal(tanDb_test@Ns, tanDb@Ns)
 })

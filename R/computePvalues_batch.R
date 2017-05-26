@@ -847,7 +847,7 @@
                             na_indices <- which(is.na(ANT) == TRUE)
                             # ignore unused sites from testing within
                             H0.idx_ <- setdiff(H0.idx, sitesUnused_Within)
-                            H0.idx_ <- rep(H0.idx_, ncol(Within))
+                            H0.idx_ <- rep(H0.idx_, ncol(object@W))
                             p[idx, j] <- sapply(ANT, function(tanTest) {
                                 length(which(H0[H0.idx_] >= tanTest )) / length(H0.idx_)
                             })

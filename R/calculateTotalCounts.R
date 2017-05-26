@@ -108,10 +108,10 @@
                         print(paste('+++length of NAs =',length(idNA)))
                     }
                 }
-                X <- object@coverage[[site]][1:3,]
+                X <- object@coverage[[site]][1:nSamples, ]
                 X[,idNA] <- 0
                 #Y <- object@coverage[[site]][5:7, ]
-                Y <- object@coverage[[site]][4:6, ]
+                Y <- object@coverage[[site]][(nSamples + 1):(2*nSamples), ]
                 Y[, idNA] <- 0
                 if ( dim(X)[2] < object@s.size) {
                     XY <- rbind(X,Y)
@@ -139,7 +139,9 @@
                     Ns <- as.matrix(rowMeans(Counts),ncol=1,nrow=nrow(Counts))
                 } else {
                     Ns <- Counts
-                    colnames(Ns)= c('a','b','c','A','B','C')
+                    # colnames(Ns)= c('a','b','c','A','B','C')
+                    colnames(Ns) <- c(letters[1:nSamples], toupper(letters[1:nSamples]))
+
                 }
             } # end 'for' of site
             return(Ns)
@@ -175,10 +177,10 @@
                         print(paste('+++length of NAs =',length(idNA)))
                     }
                 }
-                X <- object@coverage[[site]][1:2,]
+                X <- object@coverage[[site]][1:nSamples, ]
                 X[,idNA] <- 0
                 # dim Y <- nxT (number of reps x width of interval)
-                Y <- object@coverage[[site]][3:4,]
+                Y <- object@coverage[[site]][(nSamples + 1):(2*nSamples), ]
                 Y[, idNA] <- 0
                 if ( dim(X)[2] < object@s.size) {
                     XY <- rbind(X,Y)
@@ -198,7 +200,7 @@
                         Counts[index, ] <- apply(XY[, design], 1, sum)/ s.size
                         index <- index + 1
                     } else {
-                        Counts[index, ] <-apply(XY[, design], 1, sum)
+                        Counts[index, ] <- apply(XY[, design], 1, sum)
                         index <- index + 1
                     }
                 }
@@ -206,7 +208,7 @@
                     Ns <- as.matrix(rowMeans(Counts),ncol=1,nrow=nrow(Counts))
                 } else {
                     Ns <- Counts
-                    colnames(Ns)= c('a','b','A','B')
+                    colnames(Ns) <- c(letters[1:nSamples], toupper(letters[1:nSamples]))
                 }
             } # end 'for' of site
             return(Ns)
@@ -215,7 +217,6 @@
     parallel::stopCluster(cl)
     # Add labels for Ns
     Ns <- matrix(NA, nrow = total, ncol = Ns_cols)
-    #colnames(Ncount) <- c(letters[1:4], toupper(letters[1:4]))
     colnames(Ncount) <- c(letters[1:nSamples], toupper(letters[1:nSamples]))
     if (nSamples == 4) {
         minLabs <- c('ab','ac','ad','bc','bd','cd')

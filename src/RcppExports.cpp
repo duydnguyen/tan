@@ -35,3 +35,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"tan_AN_test", (DL_FUNC) &tan_AN_test, 6},
+    {"tan_compute_Var", (DL_FUNC) &tan_compute_Var, 4},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_tan(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}
