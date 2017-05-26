@@ -8,8 +8,8 @@
     doParallel::registerDoParallel(cl)
     sizeGrid <- floor(total / n_cores)
     Ncount <- matrix()
-    ### nSamples = 4 ###
-    if (nSamples == 4) {
+    ### nSamples > 3 ###
+    if (nSamples > 3) {
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
         Ns_cols <- 12
         Ncount  <- foreach::foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
@@ -39,10 +39,10 @@
                     }
                 }
                 # dim X <- nxT (number of reps x width of interval)
-                X <- object@coverage[[site]][1:4,]
+                X <- object@coverage[[site]][1:nSamples, ]
                 X[, idNA] <- 0
                 # dim Y <- nxT (number of reps x width of interval)
-                Y <- object@coverage[[site]][5:8,]
+                Y <- object@coverage[[site]][(nSamples + 1):(2*nSamples), ]
                 Y[, idNA] <- 0
                 if ( dim(X)[2] < object@s.size) {
                     XY <- rbind(X,Y)
@@ -67,16 +67,17 @@
                     }
                 }
                 if (bSampleMean) {
-                    Ns <- as.matrix(rowMeans(Counts),ncol=1,nrow=nrow(Counts))
+                    Ns <- as.matrix(rowMeans(Counts), ncol=1, nrow=nrow(Counts))
                 } else {
                     Ns <- Counts
-                    colnames(Ns)= c('a','b','c','d','A','B','C','D')
+                    # colnames(Ns)= c('a','b','c','d','A','B','C','D')
+                    colnames(Ns) <- c(letters[1:nSamples], toupper(letters[1:nSamples]))
                 }
             } # end 'for' of site
             return(Ns)
         }
 
-    } # end if (nSamples == 4)
+    } # end if (nSamples > 3)
     else if (nSamples == 3) {
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
         # number of columns for Ns =  (ab,ac,bc; similar for plus condition)
