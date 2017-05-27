@@ -77,7 +77,7 @@
         allColList <- create_labels(object@nSamples, object@Ns)
         temp <- allColList[['withinLabel']]
         wSites <- createWithinSites(Ns = object@Ns, dN = dN, withinLabels = temp)
-    } # end of n=4
+    }
     else if (object@nSamples == 3) {
         print(paste("Calculating within sites for sample size n = ", object@nSamples), sep = "")
         temp <- c('ab vs ac', 'ab vs bc', 'ac vs bc', 'AB vs AC', 'AB vs BC', 'AC vs BC')
