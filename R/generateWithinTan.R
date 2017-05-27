@@ -1,5 +1,5 @@
 .generateWithinTan <- function(object, minus_condition, ...) {
-    if (object@nSamples %in% c(3,4)) {
+    if (object@nSamples > 2) {
         if (minus_condition == TRUE) {
             print("Generating the Within Adaptive test for first condition")
         } else {
@@ -9,8 +9,9 @@
     else if (object@nSamples == 2) {
         print("Calculating the Within Adaptive tests for both conditions")
     }
+    ### MAIN ###
     W <- matrix()
-    if (object@nSamples == 4) {
+    if (object@nSamples > 3) {
         print(paste("Generating the Within Adaptive test for sample size n = ", object@nSamples), sep = "")
         total <- length(object@coverage)
         # number of columns within W1, W2: (ab vs. cd, ac vs. bd, ad vs. bc; sim. for plus)
