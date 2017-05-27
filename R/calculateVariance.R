@@ -81,14 +81,6 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                     numTests <-  c()
                     indexList <- list()
                     if (minus_condition == TRUE) {
-                        ## X1 <- coverage[[site]][1:2,]
-                        ## Y1 <- coverage[[site]][3:4,]
-                        ## X2 <- coverage[[site]][c(1,3),]
-                        ## Y2 <- coverage[[site]][c(2,4),]
-                        ## X3 <- coverage[[site]][c(1,4),]
-                        ## Y3 <- coverage[[site]][c(2,3),]
-
-                        # new TODO
                         indexList <- create_indexList(nSamples)
                         numTests <- length(indexList)
                         for (tt in 1:numTests) {
@@ -98,14 +90,6 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                         }
                     }
                     else {
-                        ## X1 <- coverage[[site]][5:6,]
-                        ## Y1 <- coverage[[site]][7:8,]
-                        ## X2 <- coverage[[site]][c(5,7),]
-                        ## Y2 <- coverage[[site]][c(6,8),]
-                        ## X3 <- coverage[[site]][c(5,8),]
-                        ## Y3 <- coverage[[site]][c(6,7),]
-
-                        # new TODO
                         indexList <- create_indexList(nSamples)
                         numTests <- length(indexList)
                         for (tt in 1:numTests) {
@@ -114,13 +98,8 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                             withinY[[tt]] <- coverage[[site]][ids[3:4],]
                         }
                     }
-                    ## if ( dim(X1)[2] < s.size ) {
                     if ( dim(withinX[[1]])[2] < s.size ) {
                         if (use_cpp) {
-                            ## test1 <- tan::compute_Var(X1, Y1, na_rm = TRUE, pool = FALSE)
-                            ## test2 <- tan::compute_Var(X2, Y2, na_rm = TRUE, pool = FALSE)
-                            ## test3 <- tan::compute_Var(X3, Y3, na_rm = TRUE, pool = FALSE)
-
                             for (tt in 1:numTests) {
                                 X <- withinX[[tt]]
                                 Y <- withinY[[tt]]
@@ -128,25 +107,16 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                             }
                         }
                         else {
-                            ## test1 <-  tan::AN.test(X1, Y1, na.rm=TRUE)
-                            ## test2 <-  tan::AN.test(X2, Y2, na.rm=TRUE)
-                            ## test3 <-  tan::AN.test(X3, Y3, na.rm=TRUE)
-
                             for (tt in 1:numTests) {
                                 X <- withinX[[tt]]
                                 Y <- withinY[[tt]]
                                 testList[[tt]] <- tan::AN.test(X, Y, na_rm = TRUE)
                             }
-
                         }
                     }
                     else {
                         design <- Designs[site, ]
                         if (use_cpp) {
-                            ## test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
-                            ## test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
-                            ## test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
-
                             for (tt in 1:numTests) {
                                 X <- withinX[[tt]]
                                 Y <- withinY[[tt]]
@@ -154,10 +124,6 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                             }
                         }
                         else {
-                            ## test1 <- tan::AN.test(X1[, design], Y1[, design], na.rm=TRUE)
-                            ## test2 <- tan::AN.test(X2[, design], Y2[, design], na.rm=TRUE)
-                            ## test3 <- tan::AN.test(X3[, design], Y3[, design], na.rm=TRUE)
-
                             for (tt in 1:numTests) {
                                 X <- withinX[[tt]]
                                 Y <- withinY[[tt]]
@@ -165,16 +131,12 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                             }
                         }
                     }
-                    ## minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
-                    ##                  length(test1$varY), length(test2$varY), length(test3$varY)))
-
                     lenIndices <- c()
                     for (tt in 1:numTests) {
                         test_ <- testList[[tt]]
                         lenIndices <- c(lenIndices, length(test_$varX), length(test_$varY))
                     }
                     minIndex <- min(lenIndices)
-
                     ## check minIndex > Global_lower (lower bound for pooled var vector of each bins)
                     if (minIndex > Global_lower) {
                         if (minGlobal > minIndex) {
@@ -273,7 +235,6 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
         # lab_pool <- c('ab', 'ac', 'bc') # label of S_
         lab_pool <- colnames(object@Ns)[1:(dim(object@Ns)[2] / 2)]
         sitesUnused <- c()
-
         resultList <- evaluate_variance(coverage = object@coverage, nSamples = object@nSamples,
                           wSites = object@wSites, lab_pool = lab_pool,
                           minus_condition = minus_condition, use_cpp = use_cpp,
@@ -281,105 +242,6 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                           Global_lower = Global_lower)
         Var <- resultList[['Var']]
         sitesUnused <- resultList[['sitesUnused']]
-
-        ## for (bin in 1:length(object@wSites)) {
-        ##     print(paste('bin = ', bin))
-        ##     if (length(object@wSites[[bin]]) > 0 ) {
-        ##         sites <- object@wSites[[bin]]
-        ##         df <- data.frame()
-        ##         varList <- list()
-        ##         minGlobal <- Inf
-        ##         count <- 1
-        ##         if (length(sites) > 0) {
-        ##             for (site in sites) {
-        ##                 if (minus_condition == TRUE) {
-        ##                     X1 <- object@coverage[[site]][1:2,] #ab
-        ##                     Y1 <- object@coverage[[site]][c(1,3),] #ac
-        ##                     X2 <- object@coverage[[site]][1:2,] #ab
-        ##                     Y2 <- object@coverage[[site]][2:3,] #bc
-        ##                     X3 <- object@coverage[[site]][c(1,3),] #ac
-        ##                     Y3 <- object@coverage[[site]][2:3,] #bc
-        ##                 }
-        ##                 else {
-        ##                     X1 <- object@coverage[[site]][4:5,]
-        ##                     Y1 <- object@coverage[[site]][c(4,6),]
-        ##                     X2 <- object@coverage[[site]][4:5,]
-        ##                     Y2 <- object@coverage[[site]][5:6,]
-        ##                     X3 <- object@coverage[[site]][c(4,6),]
-        ##                     Y3 <- object@coverage[[site]][5:6,]
-
-        ##                 }
-        ##                 if ( dim(X1)[2] < object@s.size ) {
-        ##                     if (use_cpp) {
-        ##                         test1 <- tan::compute_Var(X1, Y1, na_rm = TRUE, pool = FALSE)
-        ##                         test2 <- tan::compute_Var(X2, Y2, na_rm = TRUE, pool = FALSE)
-        ##                         test3 <- tan::compute_Var(X3, Y3, na_rm = TRUE, pool = FALSE)
-        ##                     }
-        ##                     else {
-        ##                         test1 <-  tan::AN.test(X1, Y1, na.rm=TRUE)
-        ##                         test2 <-  tan::AN.test(X2, Y2, na.rm=TRUE)
-        ##                         test3 <-  tan::AN.test(X3, Y3, na.rm=TRUE)
-        ##                     }
-
-        ##                 }
-        ##                 else {
-        ##                     design <- object@Designs[site, ]
-        ##                     if (use_cpp) {
-        ##                         test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
-        ##                         test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
-        ##                         test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
-        ##                     }
-        ##                     else {
-        ##                         test1 <- tan::AN.test(X1[, design], Y1[, design], na.rm=TRUE)
-        ##                         test2 <- tan::AN.test(X2[, design], Y2[, design], na.rm=TRUE)
-        ##                         test3 <- tan::AN.test(X3[, design], Y3[, design], na.rm=TRUE)
-        ##                     }
-        ##                 }
-        ##                 minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
-        ##                                   length(test1$varY), length(test2$varY), length(test3$varY)))
-        ##                 ## check minIndex > Global_lower (lower bound for pooled var vector of each bins)
-        ##                 if (minIndex > Global_lower) {
-        ##                     if (minGlobal > minIndex) {
-        ##                         minGlobal <- minIndex
-        ##                     }
-        ##                     df <- data.frame('ab' = test1$varX[1:minIndex], 'ac' = test2$varX[1:minIndex], 'ad' = test3$varX[1:minIndex],
-        ##                                      'bc' = test3$varY[1:minIndex], 'bd' = test2$varY[1:minIndex], 'cd' = test1$varY[1:minIndex])
-        ##                     varList[[count]] <- df
-        ##                     count <- count + 1
-        ##                 }
-        ##                 # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
-        ##                 # or manyrepeated counts: 03/24/17
-        ##                 else {
-        ##                     sitesUnused <- c(sitesUnused, site)
-        ##                 }
-        ##             } # end of for (site in sites)
-        ##             ## Pooling variances across sites in bin
-        ##             poolVar <- list()
-        ##             print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
-        ##             ## Case: minGlobal < Inf
-        ##             if (minGlobal < Inf) {
-        ##                 matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
-        ##                 for (pair in lab_pool) {
-        ##                     for (i in 1:length(varList)) {
-        ##                         matVar[i, ] <- varList[[i]][1:minGlobal, pair]
-        ##                     }
-        ##                     var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
-        ##                     if ( length(var) >= movAve ) {
-        ##                         var <- tan::movingAverage(var, movAve)
-        ##                     }
-        ##                     poolVar[[pair]] <- var
-        ##                 }
-        ##                 Var[[bin]] <- poolVar
-        ##             }
-        ##             ## Case: minGlobal = Inf
-        ##             else {
-        ##                 message("minGlobal = Inf: 1. Variance vector for this bin returned NA,
-        ##                             and/or 2. Sites in this bin stored in sitesUnused slot")
-        ##                 Var[[bin]] <- NA
-        ##             }
-        ##         }
-        ##     }
-        ## } # end of bin
         object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
     }
     else if (object@nSamples == 2) {
