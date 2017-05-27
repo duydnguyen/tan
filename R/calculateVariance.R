@@ -176,8 +176,12 @@
                             if (minGlobal > minIndex) {
                                 minGlobal <- minIndex
                             }
-                            df <- data.frame('ab' = test1$varX[1:minIndex], 'ac' = test2$varX[1:minIndex], 'ad' = test3$varX[1:minIndex],
-                                             'bc' = test3$varY[1:minIndex], 'bd' = test2$varY[1:minIndex], 'cd' = test1$varY[1:minIndex])
+                            # df <- data.frame('ab' = test1$varX[1:minIndex], 'ac' = test2$varX[1:minIndex], 'ad' = test3$varX[1:minIndex],
+                            #                  'bc' = test3$varY[1:minIndex], 'bd' = test2$varY[1:minIndex], 'cd' = test1$varY[1:minIndex])
+                            df <- data.frame('ab' = test1$varX[1:minIndex],
+                                             'ac' = test1$varY[1:minIndex],
+                                             'bc' = test3$varY[1:minIndex])
+
                             varList[[count]] <- df
                             count <- count + 1
                         }
