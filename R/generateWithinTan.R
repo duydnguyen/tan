@@ -88,12 +88,12 @@ evaluate_within <- function(coverage, nSamples, wSites, minus_condition, use_cpp
             pooled <- minusVar[[bin]] # could returned NA if Bin's sites are "low quality"
             # colnames(W) <- c('ab vs cd', 'ac vs bd', 'ad vs bc' )
             colnames(W) <- withinLabel[1:Within_cols]
-            X1 <- coverage[[site]][1:2,]
-            Y1 <- coverage[[site]][3:4,]
-            X2 <- coverage[[site]][c(1,3),]
-            Y2 <- coverage[[site]][c(2,4),]
-            X3 <- coverage[[site]][c(1,4),]
-            Y3 <- coverage[[site]][c(2,3),]
+            ## X1 <- coverage[[site]][1:2,]
+            ## Y1 <- coverage[[site]][3:4,]
+            ## X2 <- coverage[[site]][c(1,3),]
+            ## Y2 <- coverage[[site]][c(2,4),]
+            ## X3 <- coverage[[site]][c(1,4),]
+            ## Y3 <- coverage[[site]][c(2,3),]
 
             indexList <- create_indexList(nSamples)
             numTests <- length(indexList)
@@ -108,12 +108,12 @@ evaluate_within <- function(coverage, nSamples, wSites, minus_condition, use_cpp
             pooled <- plusVar[[bin]]
             # colnames(W) <- toupper(c('ab vs cd', 'ac vs bd', 'ad vs bc' ))
             colnames(W) <- withinLabel[(Within_cols + 1):(2 * Within_cols)]
-            X1 <- coverage[[site]][5:6,]
-            Y1 <- coverage[[site]][7:8,]
-            X2 <- coverage[[site]][c(5,7),]
-            Y2 <- coverage[[site]][c(6,8),]
-            X3 <- coverage[[site]][c(5,8),]
-            Y3 <- coverage[[site]][c(6,7),]
+            ## X1 <- coverage[[site]][5:6,]
+            ## Y1 <- coverage[[site]][7:8,]
+            ## X2 <- coverage[[site]][c(5,7),]
+            ## Y2 <- coverage[[site]][c(6,8),]
+            ## X3 <- coverage[[site]][c(5,8),]
+            ## Y3 <- coverage[[site]][c(6,7),]
 
             indexList <- create_indexList(nSamples)
             numTests <- length(indexList)
