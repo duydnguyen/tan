@@ -129,6 +129,8 @@ context("calculate Variance")
 #     expect_equal(fooDb@plusVar, plusVar)
 # })
 
+## Date: 05/27/17
+
 ## test_that(" Simulation with n = 4", {
 ##     source("../../../../Simulation/R/params_DA.R")
 ##     ### coverage from Simulation

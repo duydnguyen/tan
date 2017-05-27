@@ -147,6 +147,8 @@ context("calculateTotalCounts")
 ##     expect_equal(tanDb@Ns, Ns)
 ## })
 
+#### Date: 05/27/17
+
 ## test_that(" Simulation with n = 4", {
 ##     source("../../../../Simulation/R/params_DA.R")
 ##     ### coverage from Simulation

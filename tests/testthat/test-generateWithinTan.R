@@ -229,8 +229,6 @@ test_that(" Simulation with n = 3", {
     tanDb_test <- generateWithinTan(tanDb_test, minus_condition = TRUE)
     tanDb_test <- generateWithinTan(tanDb_test, minus_condition = FALSE)
 
-    ### test:
-    ## load(file = paste(path, 'tanDb_n3_master.RData', sep =''))
     load(file = paste(path, 'tanDb_n3_fix_sample_size.RData', sep =''))
     expect_equal(tanDb_test@W1, tanDb@W1)
     expect_equal(tanDb_test@W2, tanDb@W2)
