@@ -216,9 +216,10 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
     }
     ### MAIN ###
     Var <- list()
-    if (object@nSamples > 3) {
+    if (object@nSamples > 2) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
-        # lab_pool <- c('ab', 'ac', 'ad', 'bc', 'bd', 'cd')
+        ## n=4: lab_pool <- c('ab', 'ac', 'ad', 'bc', 'bd', 'cd')
+        ## n=3: lab_pool <- c('ab', 'ac', 'bc')
         lab_pool <- colnames(object@Ns)[1:(dim(object@Ns)[2] / 2)]
         sitesUnused <- c()
         resultList <- evaluate_variance(coverage = object@coverage, nSamples = object@nSamples,
@@ -229,21 +230,7 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
         Var <- resultList[['Var']]
         sitesUnused <- resultList[['sitesUnused']]
         object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
-    } # end of if (n > 3)
-    else if (object@nSamples == 3) {
-        print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
-        # lab_pool <- c('ab', 'ac', 'bc') # label of S_
-        lab_pool <- colnames(object@Ns)[1:(dim(object@Ns)[2] / 2)]
-        sitesUnused <- c()
-        resultList <- evaluate_variance(coverage = object@coverage, nSamples = object@nSamples,
-                          wSites = object@wSites, lab_pool = lab_pool,
-                          minus_condition = minus_condition, use_cpp = use_cpp,
-                          s.size = object@s.size, Designs = object@Designs,
-                          Global_lower = Global_lower)
-        Var <- resultList[['Var']]
-        sitesUnused <- resultList[['sitesUnused']]
-        object@sitesUnused <- unique(c(object@sitesUnused, sitesUnused))
-    }
+    } # end of if (n > 2)
     else if (object@nSamples == 2) {
         print(paste("Calculating pooled variance for sample size n = ", object@nSamples), sep = "")
         Var <- list()
