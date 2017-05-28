@@ -2,7 +2,7 @@ evaluate_within <- function(coverage, nSamples, wSites, minus_condition, use_cpp
                            s.size, Designs, minusVar, plusVar) {
     ## Get dictionary {a:1, b:2, c:3, d:4,...}
     getDict <- function(s) {
-                                        # only for lower case mapping
+        # only for lower case mapping
         return(match(tolower(s), letters))
     }
     ## create pair sample for within labels
