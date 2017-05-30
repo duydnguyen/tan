@@ -206,3 +206,38 @@ test_that(" Simulation with n = 4", {
     load(file = paste(path, 'tanDb_n4.RData', sep =''))
     expect_equal(tanDb_test@PvalList, tanDb@PvalList)
 })
+
+
+test_that(" Simulation with n = 3", {
+    source("../../../../Simulation/R/params_DA.R")
+    ### coverage from Simulation
+    path <- "../../../../Simulation/DeriveData/"
+    load(file = paste(path, "coverageList.RData", sep = ""))
+    sim <- 1
+    coverage <- coverageList[[sim]]
+    coverage[["labels"]] <- coverage[["labels_new"]] <- NULL
+    tanDb_test <- new("tanDb", coverage = coverage)
+    print("create Designs")
+    tanDb_test <- createDesigns(tanDb_test, s.size = s.size, LHD = LHD, Uniform = Uniform )
+    tanDb_test <- calculateTotalCounts(tanDb_test, nSamples = 3, bNormWidth = bNormWidth, bSampleMean = bSampleMean)
+
+    tanDb_test <- calculateWithinSites(tanDb_test, quantprobs = quantprobs)
+
+    tanDb_test <- calculateVariance(tanDb_test, minus_condition = TRUE,
+                                   Global_lower = Global_lower, poolQuant = poolQuant,
+                                   movAve = movAve )
+    tanDb_test <- calculateVariance(tanDb_test, minus_condition = FALSE,
+                                   Global_lower = Global_lower, poolQuant = poolQuant,
+                                   movAve = movAve )
+
+    tanDb_test <- generateWithinTan(tanDb_test, minus_condition = TRUE)
+    tanDb_test <- generateWithinTan(tanDb_test, minus_condition = FALSE)
+
+    tanDb_test <- computePvalues(tanDb_test, quant = 1, poolQuant = poolQuant, movAve =movAve,
+                                   Global_lower=Global_lower, ignore_sitesUnused = TRUE,
+                                   na_impute = FALSE)
+
+    # test:
+    load(file = paste(path, 'tanDb_n3_fix_sample_size.RData', sep =''))
+    expect_equal(tanDb_test@PvalList, tanDb@PvalList)
+})
