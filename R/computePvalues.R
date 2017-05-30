@@ -69,9 +69,10 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
         }
     }
     ### MAIN ###
+    # n=4: "ab" "ac" "ad" "bc" "bd" "cd"
     minLabs <- create_labels(nSamples)[['withinPair']]
     plusLabs <- toupper(minLabs)
-    ## Create colnames for matrix B
+    ## Create colnames for matrix between B
     labs <- ''
     for (mlab in minLabs) {
         for (plab in plusLabs) {
@@ -80,7 +81,7 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
     }
     labs <- labs[-c(1)]
 
-    total <-  nPeaks <- length(coverage)
+    total <- length(coverage)
     #n=4: number of columns between B equals 6*6 columns
     Between_cols <- length(labs)
     sitesUnused_Within <- sitesUnused
@@ -151,7 +152,8 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
             for (ii in 1:length(idx)) {
                 # print(paste("ii = ", ii))
                 site <- idx[ii]
-                # vector to stored sites in bin( test j ) whose lengths of var <= Global_lower
+                ## vector to store sites in bin( test j )
+                ## whose lengths of var <= Global_lower
                 get_m1 <- coverage[[site]][m1,]
                 get_m2 <- coverage[[site]][m2,]
                 get_p1 <- coverage[[site]][p1,]
@@ -160,7 +162,8 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
                 Y <- rbind(get_p1, get_p2)
                 if ( dim(X)[2] < s.size ) {
                     if (use_cpp) {
-                        test <- tan::AN_test(X, Y, na_rm = TRUE, pool = FALSE, poolVarX = NA, poolVarY = NA)
+                        test <- tan::AN_test(X, Y, na_rm = TRUE,
+                                            pool = FALSE, poolVarX = NA, poolVarY = NA)
                     }
                     else {
                         test <-  tan::AN.test(X, Y, na.rm=TRUE)
@@ -185,8 +188,9 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
                     minusVar_idx[[ii]] <- test$varX
                     plusVar_idx[[ii]] <- test$varY
                 }
-                # store all unused sites (minIndex <= Global_lower): minIndex = 0 -> var empty due to flat peak,
-                # or many repeated counts, or peakLength too small.
+                ## store all unused sites (minIndex <= Global_lower):
+                ## minIndex = 0 -> var empty due to flat peak,
+                ## or many repeated counts, or peakLength too small.
                 else {
                     # print(paste(" +++ minIndex <= Global_lower: ", minIndex, sep = ""))
                     minusVar_idx[[ii]] <- c()
@@ -262,7 +266,7 @@ evaluate_pvalues <- function(coverage, nSamples, wSites, use_cpp = TRUE,
                                 if (ignore_sitesUnused == FALSE) {
                                     ANT[ii] <- tan::AN_test(X, Y, na_rm=TRUE,
                                                            pool= FALSE, poolVarX = NA, poolVarY = NA)$statistic
-                                    #@: return NA when ignore_SitesUnused = TRUE ???
+                                    #@: return NA when ignore_SitesUnused = TRUE ?
                                 }
                                 else {
                                     ANT[ii] <- NA
