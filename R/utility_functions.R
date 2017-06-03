@@ -315,17 +315,17 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
         V1 <- NULL
         coverage <- copy(cover_table(object))
         lengths <- coverage[, length(coord), by = list(chr, match)][,
-            (V1)]
+                                                                    (V1)]
         extended_cond <- unlist(mapply(function(x, l) rep(x, l),
-                                      cond, lengths, SIMPLIFY = FALSE))
+                                       cond, lengths, SIMPLIFY = FALSE))
         out_regions <- regions(object)[cond]
         rm(cond)
         coverage[, `:=`(cond, extended_cond)]
         coverage <- coverage[cond == TRUE]
         coverage[, `:=`(cond, NULL)]
         out <- new("segvis_block", name = name(object), regions = out_regions,
-                  bandwidth = bandwidth(object), normConst = normConst(object),
-                  cover_table = coverage, .isScaled = object@.isScaled)
+                   bandwidth = bandwidth(object), normConst = normConst(object),
+                   cover_table = coverage, .isScaled = object@.isScaled)
         return(out)
     }
     create_plot_data <- function (counts, name, coord)
@@ -336,7 +336,7 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
     .subset_logical <- function (object, condition_call)
     {
         cond <- as.logical(eval(condition_call, as(regions(object),
-                                                  "data.frame"), parent.frame()))
+                                                   "data.frame"), parent.frame()))
         return(cond)
     }
     ### MAIN ###
@@ -369,16 +369,9 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
     plot_data <- mcmapply(create_plot_data, profiles, nms, MoreArgs = list(coord),
                           SIMPLIFY = FALSE, mc.silent = TRUE, mc.cores = mc, mc.preschedule = TRUE)
     # plot_data <- do.call(rbind, plot_data)
-
-    dfCoverage <- data.frame(matrix(ncol = 0, nrow = dim(plot_data[[1]])[1] ))
-    nSample <- length(plot_data)
-    for (i in 1:nSample) {
-        dfCoverage <- cbind(dfCoverage, plot_data[[i]][, y])
-    }
-    dfCoverage <- t(dfCoverage)
-    rownames(dfCoverage) <- NULL
-    return(dfCoverage)
+    return(plot_data)
 }
+
 
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp

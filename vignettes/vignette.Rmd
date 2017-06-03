@@ -82,7 +82,7 @@ gr <- GRanges(seqnames = bed_content[, 1],
               ranges = IRanges(bed_content[,2], bed_content[,3]), 
               strand = "*")
 chromosomes <- c("chr7")
-gr
+
 ```
 
 Next, we constructed the **Segvis** object:
@@ -128,7 +128,7 @@ rstart <- start(gr)[1]
 rend <- end(gr)[1]
 chr <- as.character(seqnames(gr)[1])
 iden <- function(x) x
-coverage <- tan::get_coverage(block_list, condition = seqnames == chr & start == rstart,
-                         coord = rstart:rend, FUN = iden, mc = mc_cores)
+# coverage <- tan::generate_coverage(block_list, condition = seqnames == chr & start == rstart,
+#                          coord = rstart:rend, FUN = iden, mc = mc_cores)
 # dim(coverage)
 ```   
