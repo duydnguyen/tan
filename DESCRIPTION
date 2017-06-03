@@ -19,7 +19,8 @@ Imports: Rcpp,
     parallel,
     doParallel,
     foreach,
-    methods
+    methods,
+    data.table
 Suggests: testthat,
     knitr,
     rmarkdown
