@@ -38,7 +38,7 @@ In this vignette, we present a brief overview of the [tan](https://github.com/du
 ```{r load,include=TRUE,echo=TRUE,eval=FALSE}
 
     library(tan)
-    # library(tanExample)
+    library(tanExample)
 
 ```
 
@@ -65,9 +65,8 @@ After a set of candidate regions is available, [tan](https://github.com/duydnguy
 For demonstration, we used the H3K27me3's region of BZW2's gene body whose genomic coordinates are stored in BZW2.bed.
 
 ```{r extractBam, include=TRUE, echo=TRUE, eval=TRUE}
-    #library(ggplot2, quietly = TRUE)
-    files = list.files(system.file("extdata/H3K27me3",
-        package = "tan"),full.names = TRUE)
+    files = list.files(system.file("extdata/bzw2",
+        package = "tanExample"),full.names = TRUE)
     basename(files[c(1,3)])
   
 ```
@@ -122,96 +121,15 @@ rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
 block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
 ```   
 
-To obtain the read coverage, we run the following code:
+To obtain read coverage, we run the following code:
 
 ```{r Segvis_step2, include = TRUE, echo = TRUE, eval = TRUE}
 rstart <- start(gr)[1]
 rend <- end(gr)[1]
 chr <- as.character(seqnames(gr)[1])
 iden <- function(x) x
-
-generate_coverage_foo <- function (object, condition, coord = NULL, mc, FUN, ...)
-{
-    .filter_sb <- function (object, cond)
-    {
-        if (any(is.na(cond))) {
-            warning("There are regions impossible to evaluate")
-            cond[is.na(cond)] = FALSE
-        }
-        V1 <- NULL
-        coverage <- copy(cover_table(object))
-        lengths <- coverage[, length(coord), by = list(chr, match)][,
-            (V1)]
-        extended_cond <- unlist(mapply(function(x, l) rep(x, l),
-                                      cond, lengths, SIMPLIFY = FALSE))
-        out_regions <- regions(object)[cond]
-        rm(cond)
-        coverage[, `:=`(cond, extended_cond)]
-        coverage <- coverage[cond == TRUE]
-        coverage[, `:=`(cond, NULL)]
-        out <- new("segvis_block", name = name(object), regions = out_regions,
-                  bandwidth = bandwidth(object), normConst = normConst(object),
-                  cover_table = coverage, .isScaled = object@.isScaled)
-        return(out)
-    }
-    create_plot_data <- function (counts, name, coord)
-    {
-        dt <- data.table(x = coord, y = counts, condition = name)
-        return(dt)
-    }
-    .subset_logical <- function (object, condition_call)
-    {
-        cond <- as.logical(eval(condition_call, as(regions(object),
-                                                  "data.frame"), parent.frame()))
-        return(cond)
-    }
-    ### MAIN ###
-    if (is.null(names(object))) {
-        nms <- 1:length(object)
-    }
-    else {
-        nms <- names(object)
-    }
-    if (!missing(condition)) {
-        conds <- mclapply(object, .subset_logical, substitute(condition),
-                          mc.cores = mc)
-    }
-    else {
-        nregions <- lapply(object, function(x) length(regions(x)))
-        conds <- lapply(nregions, function(x) rep(TRUE, x))
-    }
-    subsets <- mcmapply(.filter_sb, object, conds, SIMPLIFY = FALSE,
-                        mc.cores = mc)
-    widths <- mclapply(subsets, function(x) width(regions(x)),
-                       mc.cores = mc)
-    if (length(unique(unlist(widths))) > 1) {
-        stop("The supplied regions doesn't have the same width")
-    }
-    else plot_width <- unique(unlist(widths))
-    if (is.null(coord)) {
-        coord <- 1:plot_width
-    }
-    profiles <- mclapply(subsets, summarize, FUN, ..., mc.cores = mc)
-    plot_data <- mcmapply(create_plot_data, profiles, nms, MoreArgs = list(coord),
-                          SIMPLIFY = FALSE, mc.silent = TRUE, mc.cores = mc, mc.preschedule = TRUE)
-    # plot_data <- do.call(rbind, plot_data)
-
-    dfCoverage <- data.frame(matrix(ncol = 0, nrow = dim(plot_data[[1]])[1] ))
-    nSample <- length(plot_data)
-    for (i in 1:nSample) {
-        dfCoverage <- cbind(dfCoverage, plot_data[[i]][, y])
-    }
-    dfCoverage <- t(dfCoverage)
-    rownames(dfCoverage) <- NULL
-    return(dfCoverage)
-}
-
-# coverage <- generate_coverage_foo(block_list, condition = seqnames == chr & start == rstart,
-#                                       coord = rstart:rend, FUN = iden, mc = mc_cores)
-
-p <- tan::generate_coverage(object = block_list, condition = seqnames == chr & start == rstart,
+coverage <- tan::generate_coverage(object = block_list, 
+                          condition = seqnames == chr & start == rstart,
                           coord = rstart:rend, FUN = iden, mc = mc_cores)
-
-# dim(coverage)
 
 ```   
