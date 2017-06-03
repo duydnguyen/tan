@@ -304,7 +304,7 @@ create_pMat <- function(p.list, totalPeaks, nSamples) {
 #' @export
 #'
 #' @examples
-get_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
+generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
 {
     .filter_sb <- function (object, cond)
     {
