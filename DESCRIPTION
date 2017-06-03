@@ -20,4 +20,7 @@ Imports: Rcpp,
     doParallel,
     foreach,
     methods
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

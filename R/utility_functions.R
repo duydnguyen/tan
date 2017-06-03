@@ -291,6 +291,95 @@ create_pMat <- function(p.list, totalPeaks, nSamples) {
     pMat
 }
 
+#' Extract reads from a Segvis object
+#'
+#' @param object A Segvis_block_list object.
+#' @param condition
+#' @param coord a vector storing the genomic coordinates to be extracted.
+#' @param mc number of cores for parallel pipeline.
+#' @param FUN
+#' @param ...
+#'
+#' @return a data frame contains read coverage.
+#' @export
+#'
+#' @examples
+get_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
+{
+    .filter_sb <- function (object, cond)
+    {
+        if (any(is.na(cond))) {
+            warning("There are regions impossible to evaluate")
+            cond[is.na(cond)] = FALSE
+        }
+        V1 <- NULL
+        coverage <- copy(cover_table(object))
+        lengths <- coverage[, length(coord), by = list(chr, match)][,
+            (V1)]
+        extended_cond <- unlist(mapply(function(x, l) rep(x, l),
+                                      cond, lengths, SIMPLIFY = FALSE))
+        out_regions <- regions(object)[cond]
+        rm(cond)
+        coverage[, `:=`(cond, extended_cond)]
+        coverage <- coverage[cond == TRUE]
+        coverage[, `:=`(cond, NULL)]
+        out <- new("segvis_block", name = name(object), regions = out_regions,
+                  bandwidth = bandwidth(object), normConst = normConst(object),
+                  cover_table = coverage, .isScaled = object@.isScaled)
+        return(out)
+    }
+    create_plot_data <- function (counts, name, coord)
+    {
+        dt <- data.table(x = coord, y = counts, condition = name)
+        return(dt)
+    }
+    .subset_logical <- function (object, condition_call)
+    {
+        cond <- as.logical(eval(condition_call, as(regions(object),
+                                                  "data.frame"), parent.frame()))
+        return(cond)
+    }
+    ### MAIN ###
+    if (is.null(names(object))) {
+        nms <- 1:length(object)
+    }
+    else {
+        nms <- names(object)
+    }
+    if (!missing(condition)) {
+        conds <- mclapply(object, .subset_logical, substitute(condition),
+                          mc.cores = mc)
+    }
+    else {
+        nregions <- lapply(object, function(x) length(regions(x)))
+        conds <- lapply(nregions, function(x) rep(TRUE, x))
+    }
+    subsets <- mcmapply(.filter_sb, object, conds, SIMPLIFY = FALSE,
+                        mc.cores = mc)
+    widths <- mclapply(subsets, function(x) width(regions(x)),
+                       mc.cores = mc)
+    if (length(unique(unlist(widths))) > 1) {
+        stop("The supplied regions doesn't have the same width")
+    }
+    else plot_width <- unique(unlist(widths))
+    if (is.null(coord)) {
+        coord <- 1:plot_width
+    }
+    profiles <- mclapply(subsets, summarize, FUN, ..., mc.cores = mc)
+    plot_data <- mcmapply(create_plot_data, profiles, nms, MoreArgs = list(coord),
+                          SIMPLIFY = FALSE, mc.silent = TRUE, mc.cores = mc, mc.preschedule = TRUE)
+    # plot_data <- do.call(rbind, plot_data)
+
+    dfCoverage <- data.frame(matrix(ncol = 0, nrow = dim(plot_data[[1]])[1] ))
+    nSample <- length(plot_data)
+    for (i in 1:nSample) {
+        dfCoverage <- cbind(dfCoverage, plot_data[[i]][, y])
+    }
+    dfCoverage <- t(dfCoverage)
+    rownames(dfCoverage) <- NULL
+    return(dfCoverage)
+}
+
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp
 NULL
@@ -298,5 +387,3 @@ NULL
 NULL
 #' @import foreach
 NULL
-
-
