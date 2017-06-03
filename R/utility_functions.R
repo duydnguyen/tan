@@ -380,3 +380,6 @@ NULL
 NULL
 #' @import foreach
 NULL
+#' @import data.table
+NULL
+
