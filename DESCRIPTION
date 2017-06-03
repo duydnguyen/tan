@@ -20,7 +20,8 @@ Imports: Rcpp,
     doParallel,
     foreach,
     methods,
-    data.table
+    data.table,
+    Segvis
 Suggests: testthat,
     knitr,
     rmarkdown

@@ -382,4 +382,5 @@ NULL
 NULL
 #' @import data.table
 NULL
-
+#' @import Segvis
+NULL
