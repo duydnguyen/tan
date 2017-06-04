@@ -52,7 +52,7 @@ For inputs, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic reg
 ## A set of pre-define regions for DE pipeline
 For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in \code{BED} format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
 
-## Extracting read coverage data 
+## Read coverage data 
 After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages from these regions. Here, we illustrate a way of obtain these coverage data via [Segvis](https://github.com/duydnguyen/tan-coverage) package. [tan](https://github.com/duydnguyen/tan/) accepts bam file to generate read coverages. First, we load the required packages.
 
 ```{r loadSegvis_show, include = TRUE, echo = TRUE, eval = FALSE}
@@ -82,27 +82,27 @@ gr <- GRanges(seqnames = bed_content[, 1],
               ranges = IRanges(bed_content[,2], bed_content[,3]), 
               strand = "*")
 chromosomes <- c("chr7")
-
+gr
 ```
 
-Next, we constructed the **Segvis** object:
+Next, we constructed the **Segvis** object
 
 
 ```{r Segvis_step1_noshow, include=FALSE, echo=FALSE, eval=TRUE}
-rep1.1_minus_ChIP <- buildSegvis(name = "rep1.1_minus_ChIP",
-                       file = files[3],
-                       maxBandwidth = 101, fragLen = 300, isPET = FALSE,
-                       chr = chromosomes)
-regions(rep1.1_minus_ChIP) <- gr
-# Create segvis_block object
-rep1.1_minus_ChIP <- loadReads(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP <- matchReads(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP <- getCoverage(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP_block <- Segvis_block(rep1.1_minus_ChIP, bw = 1, mc = mc_cores)
-normConst(rep1.1_minus_ChIP_block) <- 87626218
-rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
-block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
-
+# rep1.1_minus_ChIP <- buildSegvis(name = "rep1.1_minus_ChIP",
+#                        file = files[3],
+#                        maxBandwidth = 101, fragLen = 300, isPET = FALSE,
+#                        chr = chromosomes)
+# regions(rep1.1_minus_ChIP) <- gr
+# # Create segvis_block object
+# rep1.1_minus_ChIP <- loadReads(rep1.1_minus_ChIP, mc = mc_cores)
+# rep1.1_minus_ChIP <- matchReads(rep1.1_minus_ChIP, mc = mc_cores)
+# rep1.1_minus_ChIP <- getCoverage(rep1.1_minus_ChIP, mc = mc_cores)
+# rep1.1_minus_ChIP_block <- Segvis_block(rep1.1_minus_ChIP, bw = 1, mc = mc_cores)
+# normConst(rep1.1_minus_ChIP_block) <- 87626218
+# rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
+# block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
+# block_list
 ```
 
 ```{r Segvis_step1_show, include = TRUE, echo = TRUE, eval = FALSE}
@@ -119,17 +119,133 @@ rep1.1_minus_ChIP_block <- Segvis_block(rep1.1_minus_ChIP, bw = 1, mc = mc_cores
 normConst(rep1.1_minus_ChIP_block) <- 87626218
 rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
 block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
+block_list
 ```   
 
 To obtain read coverage, we run the following code:
 
-```{r Segvis_step2, include = TRUE, echo = TRUE, eval = TRUE}
+```{r Segvis_step2, include = TRUE, echo = TRUE, eval = FALSE}
 rstart <- start(gr)[1]
 rend <- end(gr)[1]
 chr <- as.character(seqnames(gr)[1])
 iden <- function(x) x
-coverage <- tan::generate_coverage(object = block_list, 
+coverage <- tan::generate_coverage(object = block_list,
                           condition = seqnames == chr & start == rstart,
                           coord = rstart:rend, FUN = iden, mc = mc_cores)
 
 ```   
+
+# Diffential analysis 
+
+The [tan](https://github.com/duydnguyen/tan/)'s differential analysis workflow consists of two main phases: 
+
+1. Generating empirical null
+distributions, 
+
+2. Testing phase and predicting differential
+regions. 
+
+Here, we present an example of 8000 genomic regions sampled from our H3K27me3 data. We included the following inputs: (1) a set of genomic regions, and (2) their corresponding read coverages.  
+
+```{r GR_info, include = TRUE, echo = TRUE, eval = TRUE}
+files = list.files(system.file("extdata",
+        package = "tanExample"),full.names = TRUE)
+basename(files[2:3])
+load(files[3])
+gr_sitesSelect
+```   
+
+## Creating a **tanDb** object 
+
+We first load the coverage, and construct a **tanDb** object as follows. 
+
+```{r tanDb_construct, include = TRUE, echo = TRUE, eval = FALSE}
+load(files[2])
+tanDb <- new("tanDb", coverage = coverage)
+```
+
+## Sampling design
+
+The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of inputs, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have space-filling property. As a result, it improves the power of detecting DE regions. For instance, we could use a grid of evenly spaced points for each region. 
+
+```{r design, include = TRUE, echo = TRUE, eval = FALSE}
+tanDb <- createDesigns(tanDb, s.size = 500, LHD = TRUE, Uniform = FALSE )
+```
+
+## Empirical null distributions
+
+In phase 1, TAN evaluates the (within) Neyman statistics
+between pairs of replicates within the same conditions. Then, it
+clusters these peaks into bins based on their total counts. These bins
+are simply partitions of read counts across the pre-defined genomic
+regions. After that, TAN constructs the corresponding null
+distributions based on the statistics available from each bin (or partition) of counts. 
+
+We first generate total counts (or area under coverage profiles). This step is required for peak clustering in later steps. We proceed as follows: 
+
+```{r totalCounts, include = FALSE, echo = FALSE, eval = TRUE}
+load(files[4])
+```
+
+```{r totalCounts2, include = TRUE, echo = TRUE, eval = FALSE}
+tanDb <- calculateTotalCounts(tanDb, nSamples = 3, bNormWidth = FALSE, 
+                              bSampleMean = FALSE)
+head(tanDb@Ns)
+```
+
+```{r totalCounts3, include = TRUE, echo = FALSE, eval = TRUE}
+print(head(tanDb@Ns))
+```
+
+Next, we cluster peaks into bins based on their total counts obtained by the previous step. 
+
+```{r calculateWithinSites, include = TRUE, echo = TRUE, eval = FALSE}
+# quantile vector for binning
+quantprobs <- seq(0, 1, 0.05) 
+tanDb <- calculateWithinSites(tanDb, quantprobs = quantprobs)
+```
+
+We also calculate the variance for each grid point in our sampling design obtained from previous step. Based on the clustering, we also pool variance for sites within the same clusters. 
+
+```{r calculateVariance, include = TRUE, echo = TRUE, eval = FALSE}
+Global_lower <- 100
+## pooled quantile at each genomic position: 
+poolQuant <- 0.5
+# number of points for moving average
+movAve <- 20
+tanDb <- calculateVariance(tanDb, minus_condition = TRUE, 
+                           Global_lower = Global_lower, 
+                           poolQuant = poolQuant, movAve = movAve )
+tanDb <- calculateVariance(tanDb, minus_condition = FALSE, 
+                           Global_lower = Global_lower, 
+                           poolQuant = poolQuant, movAve = movAve )
+```
+
+Finally, (within) adaptive Neyman statistics for are obtained as follows:  
+
+```{r generateWithinTan, include = TRUE, echo = TRUE, eval = FALSE}
+tanDb <- generateWithinTan(tanDb, minus_condition = TRUE)
+tanDb <- generateWithinTan(tanDb, minus_condition = FALSE)
+```
+
+This completes the phase 1 of our pipeline. 
+
+## Testing phase
+
+For testing phase, [tan](https://github.com/duydnguyen/tan/) constructs the
+(between) Neyman statistics by testing replicates from different
+conditions. It then maps the regions being tested to their corresponding
+empirical null distributions based on regions' total read
+counts. Consequently, TAN provides the $p$-values for each testing
+regions, leading to the prediction of differential regions after
+multiple testing correction. The code is as follows:
+
+```{r computePvalues, include = TRUE, echo = TRUE, eval = FALSE}
+tanDb <- computePvalues(tanDb, quant = 1, poolQuant = poolQuant, 
+                        movAve = movAve, Global_lower = Global_lower, 
+                        ignore_sitesUnused = TRUE,
+                        na_impute = FALSE)
+```
+
+The raw and adjusted p-values could be obtained by extracting slot `tanDb@PvalList`. This completes the testing phase.
+
