@@ -119,8 +119,7 @@ tan::plotCoverage(coverage[[1]], title = toString(gr[1]))
 
 The [tan](https://github.com/duydnguyen/tan/)'s differential analysis workflow consists of two main phases: 
 
-1. Generating empirical null
-distributions, 
+1. Generating empirical null distributions, 
 
 2. Testing phase and predicting differential
 regions. 

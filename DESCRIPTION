@@ -22,6 +22,7 @@ Imports: Rcpp,
     methods,
     data.table,
     GenomicRanges,
+    IRanges,
     GenomicAlignments
 Suggests: testthat,
     knitr,

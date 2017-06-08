@@ -409,7 +409,7 @@ bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
             return(do.call(rbind,DT))
         },
         bam_cover, list(gr_region), MoreArgs = list(binIndex),SIMPLIFY = FALSE)
-        bam_DT <- lapply(bam_all,function(x)x[, sum(counts),by = coord])
+        bam_DT <- lapply(bam_all, function(x) x[, sum(counts),by = coord])
         # generate coverage
         coverage_gr <- lapply(bam_DT, function(x) x[, 2])
         coverage_gr <- matrix(unlist(coverage_gr), ncol = dim(coverage_gr[[1]])[1], byrow = TRUE)
@@ -430,14 +430,14 @@ bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
     # extract Reads
     bam_cover <- mclapply(reads, function(x,smooth = 1) {
         x <- GenomicRanges::resize(x,smooth)
-        return(coverage(x))},
+        return(GenomicRanges::coverage(x))},
         smooth = sm, mc.cores = mc_cores)
 
     ### convert bed_content to GRanges
     gr_regions <- lapply(bed_content, function(x) {
         y <- copy(x)
-        out <- y[,GRanges(seqnames = seqnames,
-                          ranges = IRanges(start = as.numeric(start),
+        out <- y[,GenomicRanges::GRanges(seqnames = seqnames,
+                          ranges = IRanges::IRanges(start = as.numeric(start),
                                            end = as.numeric(end)))]
         return(out)
     })
@@ -496,10 +496,6 @@ NULL
 #' @import foreach
 NULL
 #' @import data.table
-NULL
-#' @import GenomicRanges
-NULL
-#' @import GenomicAlignments
 NULL
 #' @import parallel
 NULL
