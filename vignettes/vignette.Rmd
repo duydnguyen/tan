@@ -51,7 +51,7 @@ For a typical workflow, [tan](https://github.com/duydnguyen/tan/) takes a set of
 For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in \code{BED} format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
 
 ## Read coverage data 
-After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages as its additional inputs. There are several ways to load count data from bam files and convert them into counts (_e.g._ [Segvis](https://github.com/keleslab/Segvis) package or `r Biocpkg("bamsignals")` ). Here, illustrate a way of obtain these coverage data via [tan](https://github.com/duydnguyen/tan/). A typical workflow of obtaining reads requires to firstly load all reads in R, secondly process them and lastly convert them into counts. [tan](https://github.com/duydnguyen/tan/) package was efficiently implemented to merge these steps into one single function `bamCoverage`. 
+After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages as its additional inputs. There are several ways to load count data from bam files and convert them into counts (_e.g._ [Segvis](https://github.com/keleslab/Segvis) package or `r Biocpkg("bamsignals")` ). Here, illustrate a way of obtain these coverage data via [tan](https://github.com/duydnguyen/tan/). A typical workflow of obtaining reads requires to firstly load all reads in R, secondly process them and lastly convert them into counts. [tan](https://github.com/duydnguyen/tan/) package was efficiently implemented to merge these steps into one single function `bamCoverage()`. 
 
 ### Loading toy data
 
@@ -64,6 +64,12 @@ After a set of candidate regions is available, [tan](https://github.com/duydnguy
     
 ```   
 
+```{r loadSegvis_noshow, include = FALSE, echo = FALSE, eval = TRUE}
+    library(GenomicRanges)
+    library(GenomicAlignments)
+    library(data.table)
+    
+```   
 For demonstration, we used the H3K27me3's region of BZW2's gene body whose genomic coordinates are stored in BZW2.bed. In the following, we will use sorted and index bam files to load reads. The bam files need to be sorted and indexed. Note that `tan` require the bam index to be named like bam file with ".bai" suffix.  
 
 ```{r extractBam, include=TRUE, echo=TRUE, eval=TRUE}
@@ -90,17 +96,24 @@ chromosomes <- c("chr7")
 gr
 ```
 
-The `binsize` parameter indicated how reads are counted. A value of 1 correponds to single base pairs. Very often it is better to count reads mapping to bins. Bins are small partitions of fixed size tiling a larger region. `bamCoverage` introduces the `binsize` option to implement this.
+The `binsize` parameter indicated how reads are counted. A value of 1 correponds to single base pairs. Very often it is better to count reads mapping to bins. Bins are small partitions of fixed size tiling a larger region. `bamCoverage()` introduces the `binsize` option to implement this.
 
-Next, let's count how many reads map to the regions given in the bed file. Using the `bamCoverage`, this is straighforward. 
+Next, let's count how many reads map to the regions given in the bed file. Using the `bamCoverage()`, this is straighforward. 
 
 ```{r bamCoverage, include=TRUE, echo=TRUE, eval=TRUE}
 coverage <- tan::bamCoverage(bam_files = bam_files, bed_files = bed_files,
                          mc_cores = mc_cores, sm = sm, binsize = binsize)
 
+class(coverage)
+length(coverage)
 ```
 
+`bamCoverage()` returns a coverage list whose length equals to the number of regions in the given bed file. Each element of coverage list is a matrix storing values of reads. Let's summarize this with a plot
 
+```{r bamCoverage_plot, include=TRUE, echo=TRUE, eval=TRUE}
+
+tan::plotCoverage(coverage[[1]], title = toString(gr[1]))
+```
 
 # Diffential analysis 
 
