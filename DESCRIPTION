@@ -21,7 +21,8 @@ Imports: Rcpp,
     foreach,
     methods,
     data.table,
-    Segvis
+    GenomicRanges,
+    GenomicAlignments
 Suggests: testthat,
     knitr,
     rmarkdown

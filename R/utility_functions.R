@@ -301,7 +301,6 @@ create_pMat <- function(p.list, totalPeaks, nSamples) {
 #' @param ...
 #'
 #' @return a data frame contains read coverage.
-#' @export
 #'
 #' @examples
 generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
@@ -372,6 +371,87 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
     return(plot_data)
 }
 
+#'  Count reads mapping to pre-specified regions
+#'
+#' @param bam_files : full directories to bam files.
+#' @param bed_files : full directories to bed files.
+#' @param mc_cores : number of cores for parallel backend.
+#' @param sm : smoothing parameter for coverage.
+#' @param binsize : width of bins to count reads mapping to regions instead of single base pairs.
+#'
+#' @return : A list of coverage whose elements contain reads from the given regions.
+#' @export
+#'
+#' @examples
+bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1) {
+    # gr_region is GRanges object
+    get_coverage <- function(bam_cover, gr_region, gr_length, binsize = 1) {
+        ## get binIndex
+        get_bin_index <- function(binsize = 1, len_coverage) {
+            nBins <- floor(len_coverage/ binsize)
+            binIndex <- rep(1:nBins, each = binsize)
+            if ( length(binIndex) < len_coverage ) {
+                binIndex <- c(binIndex, rep(nBins + 1, len_coverage - length(binIndex) ))
+            }
+            return(binIndex)
+        }
+        ## main ##
+        binIndex <- get_bin_index(binsize = binsize, len_coverage = gr_length)
+        bam_all <- mapply(function(cover, region, bIndex) {
+            mat <- cover[region]
+            mat <- lapply(mat,as.vector)
+            nms <- paste0(as.character(GenomicRanges::seqnames(region)),":",
+                          GenomicRanges::start(region),"-", GenomicRanges::end(region))
+            DT <- mcmapply(function(x,nm, bIndex){
+                data.table(coord = bIndex, counts = x , name = nm)
+            },
+            mat, nms, MoreArgs = list(bIndex),SIMPLIFY = FALSE, mc.cores = 10)
+            return(do.call(rbind,DT))
+        },
+        bam_cover, list(gr_region), MoreArgs = list(binIndex),SIMPLIFY = FALSE)
+        bam_DT <- lapply(bam_all,function(x)x[, sum(counts),by = coord])
+        # generate coverage
+        coverage_gr <- lapply(bam_DT, function(x) x[, 2])
+        coverage_gr <- matrix(unlist(coverage_gr), ncol = dim(coverage_gr[[1]])[1], byrow = TRUE)
+        return(coverage_gr)
+    }
+    # read bam files
+    reads <- mclapply(bam_files, readGAlignments, param = NULL, mc.cores = mc_cores)
+    names(reads) <- gsub(".sort.bam","", basename(bam_files))
+    reads <- mclapply(reads, as, "GRanges", mc.cores = mc_cores)
+    # read bed file(s)
+    bed_content <- mclapply(bed_files, read.table, mc.cores = mc_cores)
+    bed_content <- lapply(bed_content, data.table)
+    names(bed_content) <- basename(dirname(bed_files))
+    bed_content <- lapply(bed_content, function(x) {
+        setnames(x, names(x), c('seqnames', 'start', 'end') )
+        return(x)
+    })
+    # extract Reads
+    bam_cover <- mclapply(reads, function(x,smooth = 1) {
+        x <- GenomicRanges::resize(x,smooth)
+        return(coverage(x))},
+        smooth = sm, mc.cores = mc_cores)
+
+    ### convert bed_content to GRanges
+    gr_regions <- lapply(bed_content, function(x) {
+        y <- copy(x)
+        out <- y[,GRanges(seqnames = seqnames,
+                          ranges = IRanges(start = as.numeric(start),
+                                           end = as.numeric(end)))]
+        return(out)
+    })
+    # generate coverage: accept one bed file for now
+    gr_regions <- gr_regions[[1]]
+    coverage <- list()
+    for (site in 1:length(gr_regions)) {
+        gr <- gr_regions[site]
+        coverage[[site]] <- get_coverage(bam_cover = bam_cover, gr_region = gr,
+                                         gr_length = width(gr), binsize = binsize)
+    }
+    return(coverage)
+}
+
 
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp
@@ -382,5 +462,10 @@ NULL
 NULL
 #' @import data.table
 NULL
-#' @import Segvis
+#' @import GenomicRanges
 NULL
+#' @import GenomicAlignments
+NULL
+#' @import parallel
+NULL
+

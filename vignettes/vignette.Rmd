@@ -53,7 +53,7 @@ For inputs, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic reg
 For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in \code{BED} format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
 
 ## Read coverage data 
-After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages from these regions. Here, we illustrate a way of obtain these coverage data via [Segvis](https://github.com/duydnguyen/tan-coverage) package. [tan](https://github.com/duydnguyen/tan/) accepts bam file to generate read coverages. First, we load the required packages.
+After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages from these regions. Here, we illustrate a way of obtain these coverage data via [Segvis](https://github.com/duydnguyen/tan-coverage) package. [tan](https://github.com/duydnguyen/tan/) accepts bam file to generate read coverages. First, we load the required packages  (which are all required for installing `tan`).
 
 ```{r loadSegvis_show, include = TRUE, echo = TRUE, eval = FALSE}
     library(Segvis)
@@ -166,7 +166,7 @@ tanDb <- new("tanDb", coverage = coverage)
 
 ## Sampling design
 
-The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of inputs, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have space-filling property. As a result, it improves the power of detecting DE regions. For instance, we could use a grid of evenly spaced points for each region. 
+The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of peak lengths, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have a space-filling property which helps capture the spatial and shape structures of histone profile coverage. As a result, it improves the power of detecting DE regions. For instance, we could use a grid of evenly spaced points for each region. 
 
 ```{r design, include = TRUE, echo = TRUE, eval = FALSE}
 tanDb <- createDesigns(tanDb, s.size = 500, LHD = TRUE, Uniform = FALSE )
@@ -205,7 +205,7 @@ quantprobs <- seq(0, 1, 0.05)
 tanDb <- calculateWithinSites(tanDb, quantprobs = quantprobs)
 ```
 
-We also calculate the variance for each grid point in our sampling design obtained from previous step. Based on the clustering, we also pool variance for sites within the same clusters. 
+We then calculate the variance for each grid point in our sampling design obtained from previous step. Based on the clustering, we also pool variance for sites within the same clusters. 
 
 ```{r calculateVariance, include = TRUE, echo = TRUE, eval = FALSE}
 Global_lower <- 100
