@@ -452,6 +452,41 @@ bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
     return(coverage)
 }
 
+#' create a coverage profile plot
+#'
+#' @param coverage : A matrix to store coverage reads
+#' @param title : title of the plot
+#' @param size : thickness of lines
+#' @param showLegend
+#'
+#' @return A ggplot2 plot
+#' @export
+#'
+#' @examples
+plotCoverage <- function(coverage, title = "", size = 0.5, showLegend = TRUE) {
+    nSample <- floor(dim(coverage)[1]/2)
+    coverage <- t(coverage)
+    minus <- apply(coverage[, 1:nSample], 1, mean)
+    plus <- apply(coverage[, (nSample + 1):(2*nSample)], 1, mean)
+    x_axis <- rep(seq(1,length(minus)), 2)
+    samples <- c(rep('Condition 1', length(minus)), rep('Condition 2', length(minus)))
+    df <- data.frame('RPM' = c(minus,plus), 'samples' = samples, 'x' = x_axis)
+    p <- ggplot(df, aes(x, RPM, color = samples)) + geom_line(size = size) +
+        ylab("Counts") + xlab("Genomic Region (5 -> 3)") +
+        labs(title= title) + theme_bw() +
+        scale_colour_manual(values = c('#619CFF','#CC6666'))
+    if (showLegend) {
+        return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
+        print(p)
+    } else {
+        return(p + theme(legend.position="none", legend.direction="horizontal",
+                         legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
+                         axis.text.x = element_blank(),
+                         axis.ticks.x = element_blank()))
+    }
+
+}
+
 
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp

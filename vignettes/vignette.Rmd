@@ -3,6 +3,7 @@ title: "tan: A differential analysis pipeline for ChIP-seq data."
 author: |
         | Duy Nguyen and S&#252;nd&#252;z Kele&#351;
         | Department of Statistics, University of Wisconsin-Madison
+date: "`r Sys.Date()`"
 output: 
     BiocStyle::html_document2
 bibliography: biblio.bib    
@@ -25,24 +26,21 @@ vignette: >
 ```{r extraload, include = FALSE, echo = FALSE, eval = TRUE}
     library(tan)
     library(knitr)
-    library(Segvis)
-    library(GenomicRanges)
-    #library(data.table)
+    library(ggplot2)
     opts_chunk$set(fig.align = "center")
 
 ```    
-# Overview
+# Introduction to the tan package
 
 In this vignette, we present a brief overview of the [tan](https://github.com/duydnguyen/tan/) package. This package provides a framework for identifying differentially enriched (DE) regions from ChIP-seq data. In this vignette, we utilized the data from a ChIP-seq experiment investigating H3K27me3 to illustrate our pipeline. To load the required packages, we use:
 
 ```{r load,include=TRUE,echo=TRUE,eval=FALSE}
-
     library(tan)
     library(tanExample)
 
 ```
 
-For inputs, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic regions (or peaks) and their aligned reads from ChIP-seq experements. Its goal is to predict the DE regions between two or multiple conditions. Specifically, the pipeline performs the following steps:
+For a typical workflow, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic regions (or peaks) and their aligned reads from ChIP-seq experements. Its goal is to predict the DE regions between two or multiple conditions. Specifically, the pipeline performs the following steps:
 
 1.
 2. 
@@ -53,30 +51,37 @@ For inputs, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic reg
 For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in \code{BED} format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
 
 ## Read coverage data 
-After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages from these regions. Here, we illustrate a way of obtain these coverage data via [Segvis](https://github.com/duydnguyen/tan-coverage) package. [tan](https://github.com/duydnguyen/tan/) accepts bam file to generate read coverages. First, we load the required packages  (which are all required for installing `tan`).
+After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages as its additional inputs. There are several ways to load count data from bam files and convert them into counts (_e.g._ [Segvis](https://github.com/keleslab/Segvis) package or `r Biocpkg("bamsignals")` ). Here, illustrate a way of obtain these coverage data via [tan](https://github.com/duydnguyen/tan/). A typical workflow of obtaining reads requires to firstly load all reads in R, secondly process them and lastly convert them into counts. [tan](https://github.com/duydnguyen/tan/) package was efficiently implemented to merge these steps into one single function `bamCoverage`. 
+
+### Loading toy data
+
+ [tan](https://github.com/duydnguyen/tan/) accepts bam file to generate read coverages. First, we load the required packages (which are all required for installing `tan`).
 
 ```{r loadSegvis_show, include = TRUE, echo = TRUE, eval = FALSE}
-    library(Segvis)
     library(GenomicRanges)
+    library(GenomicAlignments)
     library(data.table)
     
 ```   
 
-For demonstration, we used the H3K27me3's region of BZW2's gene body whose genomic coordinates are stored in BZW2.bed.
+For demonstration, we used the H3K27me3's region of BZW2's gene body whose genomic coordinates are stored in BZW2.bed. In the following, we will use sorted and index bam files to load reads. The bam files need to be sorted and indexed. Note that `tan` require the bam index to be named like bam file with ".bai" suffix.  
 
 ```{r extractBam, include=TRUE, echo=TRUE, eval=TRUE}
-    files = list.files(system.file("extdata/bzw2",
+files = list.files(system.file("extdata/bzw2",
         package = "tanExample"),full.names = TRUE)
-    basename(files[c(1,3)])
-  
+basename(files[c(1,3,6,9,12)])
+bam_files <- files[c(3,6, 9, 12)]
+bed_files <- files[1]
+# checking if there is an index 
+file.exists(gsub(".bam$", ".bam.bai", files[c(1,3,6,9,12)]))
 ```
 
 We then set up the following parameters 
 
-
-```{r Segvis_params, include=TRUE, echo=TRUE, eval=TRUE}
-gnames <- "BZW2"
-mc_cores <- 4
+```{r params, include=TRUE, echo=TRUE, eval=TRUE}
+binsize <- 150
+sm <- 1 # smooth parameter
+mc_cores <- 3
 bed_content <- read.table(file = files[1], stringsAsFactors = FALSE)
 gr <- GRanges(seqnames = bed_content[, 1],
               ranges = IRanges(bed_content[,2], bed_content[,3]), 
@@ -85,55 +90,17 @@ chromosomes <- c("chr7")
 gr
 ```
 
-Next, we constructed the **Segvis** object
+The `binsize` parameter indicated how reads are counted. A value of 1 correponds to single base pairs. Very often it is better to count reads mapping to bins. Bins are small partitions of fixed size tiling a larger region. `bamCoverage` introduces the `binsize` option to implement this.
 
+Next, let's count how many reads map to the regions given in the bed file. Using the `bamCoverage`, this is straighforward. 
 
-```{r Segvis_step1_noshow, include=FALSE, echo=FALSE, eval=TRUE}
-# rep1.1_minus_ChIP <- buildSegvis(name = "rep1.1_minus_ChIP",
-#                        file = files[3],
-#                        maxBandwidth = 101, fragLen = 300, isPET = FALSE,
-#                        chr = chromosomes)
-# regions(rep1.1_minus_ChIP) <- gr
-# # Create segvis_block object
-# rep1.1_minus_ChIP <- loadReads(rep1.1_minus_ChIP, mc = mc_cores)
-# rep1.1_minus_ChIP <- matchReads(rep1.1_minus_ChIP, mc = mc_cores)
-# rep1.1_minus_ChIP <- getCoverage(rep1.1_minus_ChIP, mc = mc_cores)
-# rep1.1_minus_ChIP_block <- Segvis_block(rep1.1_minus_ChIP, bw = 1, mc = mc_cores)
-# normConst(rep1.1_minus_ChIP_block) <- 87626218
-# rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
-# block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
-# block_list
+```{r bamCoverage, include=TRUE, echo=TRUE, eval=TRUE}
+coverage <- tan::bamCoverage(bam_files = bam_files, bed_files = bed_files,
+                         mc_cores = mc_cores, sm = sm, binsize = binsize)
+
 ```
 
-```{r Segvis_step1_show, include = TRUE, echo = TRUE, eval = FALSE}
-rep1.1_minus_ChIP <- buildSegvis(name = "rep1.1_minus_ChIP",
-                       file = files[3],
-                       maxBandwidth = 101, fragLen = 300, isPET = FALSE,
-                       chr = chromosomes)
-regions(rep1.1_minus_ChIP) <- gr
-# Create segvis_block object
-rep1.1_minus_ChIP <- loadReads(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP <- matchReads(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP <- getCoverage(rep1.1_minus_ChIP, mc = mc_cores)
-rep1.1_minus_ChIP_block <- Segvis_block(rep1.1_minus_ChIP, bw = 1, mc = mc_cores)
-normConst(rep1.1_minus_ChIP_block) <- 87626218
-rep1.1_minus_ChIP_block <- normalize(rep1.1_minus_ChIP_block, base = 10^8)
-block_list <- Segvis_block_list(rep1.1_minus_ChIP_block)
-block_list
-```   
 
-To obtain read coverage, we run the following code:
-
-```{r Segvis_step2, include = TRUE, echo = TRUE, eval = FALSE}
-rstart <- start(gr)[1]
-rend <- end(gr)[1]
-chr <- as.character(seqnames(gr)[1])
-iden <- function(x) x
-coverage <- tan::generate_coverage(object = block_list,
-                          condition = seqnames == chr & start == rstart,
-                          coord = rstart:rend, FUN = iden, mc = mc_cores)
-
-```   
 
 # Diffential analysis 
 
