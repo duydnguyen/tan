@@ -32,7 +32,7 @@ vignette: >
 ```    
 # Introduction to the tan package
 
-In this vignette, we present a brief overview of the [tan](https://github.com/duydnguyen/tan/) package. This package provides a framework for identifying differentially enriched (DE) regions from ChIP-seq data. In this vignette, we utilized the data from a ChIP-seq experiment investigating H3K27me3 to illustrate our pipeline. To load the required packages, we use:
+We present a brief overview of the [tan](https://github.com/duydnguyen/tan/) package. This package provides a framework for identifying differentially enriched (DE) regions from ChIP-seq data. In this vignette, we utilized the data from a ChIP-seq experiment investigating H3K27me3 to illustrate our pipeline. To load the required packages, we use:
 
 ```{r load,include=TRUE,echo=TRUE,eval=FALSE}
     library(tan)
@@ -42,16 +42,13 @@ In this vignette, we present a brief overview of the [tan](https://github.com/du
 
 For a typical workflow, [tan](https://github.com/duydnguyen/tan/) takes a set of genomic regions (or peaks) and their aligned reads from ChIP-seq experements. Its goal is to predict the DE regions between two or multiple conditions. Specifically, the pipeline performs the following steps:
 
-1.
-2. 
-
 # Inputs
 
 ## A set of pre-define regions for DE pipeline
-For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in \code{BED} format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
+For its first input, [tan](https://github.com/duydnguyen/tan/) takes a set of genemic regions in `BED` format as candidates to perform differential analysis. If such candidate regions are unavailable, we suggest using `r Biocpkg("mosaics")` to obtain these regions.
 
 ## Read coverage data 
-After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages as its additional inputs. There are several ways to load count data from bam files and convert them into counts (_e.g._ [Segvis](https://github.com/keleslab/Segvis) package or `r Biocpkg("bamsignals")` ). Here, illustrate a way of obtain these coverage data via [tan](https://github.com/duydnguyen/tan/). A typical workflow of obtaining reads requires to firstly load all reads in R, secondly process them and lastly convert them into counts. [tan](https://github.com/duydnguyen/tan/) package was efficiently implemented to merge these steps into one single function `bamCoverage()`. 
+After a set of candidate regions is available, [tan](https://github.com/duydnguyen/tan/) also takes read coverages as its additional inputs. There are several ways to load count data from bam files and convert them into counts (_e.g._ `r Biocpkg("bamsignals")` or [Segvis](https://github.com/keleslab/Segvis)). Here, illustrate a way of obtain these coverage data via [tan](https://github.com/duydnguyen/tan/). A typical workflow of obtaining reads requires to firstly load all reads in R, secondly process them and lastly convert them into counts. [tan](https://github.com/duydnguyen/tan/) package was efficiently implemented to merge these steps into one single function `bamCoverage()`. 
 
 ### Loading toy data
 
@@ -86,7 +83,8 @@ We then set up the following parameters
 
 ```{r params, include=TRUE, echo=TRUE, eval=TRUE}
 binsize <- 150
-sm <- 1 # smooth parameter
+# smooth parameter
+sm <- 1 
 mc_cores <- 3
 bed_content <- read.table(file = files[1], stringsAsFactors = FALSE)
 gr <- GRanges(seqnames = bed_content[, 1],
@@ -145,7 +143,7 @@ tanDb <- new("tanDb", coverage = coverage)
 
 ## Sampling design
 
-The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of peak lengths, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have a space-filling property which helps capture the spatial and shape structures of histone profile coverage. As a result, it improves the power of detecting DE regions. For instance, we could use a grid of evenly spaced points for each region. 
+The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of peak lengths, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have a space-filling property which helps capture the spatial and shape structures of histone profile coverage. As a result, it improves the power of detecting DE regions. For instance, using the `createDesigns()`, we could create a grid of evenly spaced points for each region. 
 
 ```{r design, include = TRUE, echo = TRUE, eval = FALSE}
 tanDb <- createDesigns(tanDb, s.size = 500, LHD = TRUE, Uniform = FALSE )
@@ -160,7 +158,7 @@ are simply partitions of read counts across the pre-defined genomic
 regions. After that, TAN constructs the corresponding null
 distributions based on the statistics available from each bin (or partition) of counts. 
 
-We first generate total counts (or area under coverage profiles). This step is required for peak clustering in later steps. We proceed as follows: 
+To obtain this goal, we first generate total counts (or area under coverage profiles). This step is required for peak clustering in later steps. We proceed as follows: 
 
 ```{r totalCounts, include = FALSE, echo = FALSE, eval = TRUE}
 load(files[4])
@@ -226,5 +224,5 @@ tanDb <- computePvalues(tanDb, quant = 1, poolQuant = poolQuant,
                         na_impute = FALSE)
 ```
 
-The raw and adjusted p-values could be obtained by extracting slot `tanDb@PvalList`. This completes the testing phase.
+The raw and adjusted _p-values_ could be obtained by extracting slot `tanDb@PvalList`. This completes the testing phase.
 

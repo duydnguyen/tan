@@ -14,7 +14,7 @@
 #'    according to our paper.
 #' @export
 AN_test <- function(X, Y, na_rm, pool, poolVarX, poolVarY) {
-    .Call('tan_AN_test', PACKAGE = 'tan', X, Y, na_rm, pool, poolVarX, poolVarY)
+    .Call('_tan_AN_test', PACKAGE = 'tan', X, Y, na_rm, pool, poolVarX, poolVarY)
 }
 
 #' Compute the variance vector
@@ -26,6 +26,6 @@ AN_test <- function(X, Y, na_rm, pool, poolVarX, poolVarY) {
 #'    For the current implementation, only case pool = FALSE is considered.
 #' @export
 compute_Var <- function(X, Y, na_rm, pool) {
-    .Call('tan_compute_Var', PACKAGE = 'tan', X, Y, na_rm, pool)
+    .Call('_tan_compute_Var', PACKAGE = 'tan', X, Y, na_rm, pool)
 }
 
