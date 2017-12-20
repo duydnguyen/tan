@@ -213,16 +213,42 @@ For testing phase, [tan](https://github.com/duydnguyen/tan/) constructs the
 (between) Neyman statistics by testing replicates from different
 conditions. It then maps the regions being tested to their corresponding
 empirical null distributions based on regions' total read
-counts. Consequently, TAN provides the $p$-values for each testing
+counts. Consequently, TAN provides the _p-values_ for each testing
 regions, leading to the prediction of differential regions after
 multiple testing correction. The code is as follows:
 
 ```{r computePvalues, include = TRUE, echo = TRUE, eval = FALSE}
-tanDb <- computePvalues(tanDb, quant = 1, poolQuant = poolQuant, 
+tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant, 
                         movAve = movAve, Global_lower = Global_lower, 
                         ignore_sitesUnused = TRUE,
                         na_impute = FALSE)
 ```
 
 The raw and adjusted _p-values_ could be obtained by extracting slot `tanDb@PvalList`. This completes the testing phase.
+
+Furthermore, the quantile parameter `quant` for combined _p-values_ could be adjusted without rerunning `computePvalues.` The following function performs this task:
+
+```{r evalPvals, include = TRUE, echo = TRUE, eval = FALSE}
+pvals <- evalPvals(P = tanDb@PvalList, total = nrow(P[['pval']]), quant = 0.25, 
+                   nSamples = tanDb@nSamples, BH = FALSE, na.rm = TRUE)
+pvals.a <- p.adjust(pvals, method = 'BH')
+```
+
+The adjusted _p-values_ could be obtained directly by changing the parameter `BH = FALSE` to `BH = TRUE.` 
+
+```{r evalPvals_adjusted, include = TRUE, echo = TRUE, eval = FALSE}
+pvals.a <- evalPvals(P = tanDb@PvalList, total = nrow(P[['pval']]), quant = 0.25, 
+                   nSamples = tanDb@nSamples, BH = TRUE, na.rm = TRUE)
+```
+
+For visualizing the results of diffentially/non-differentially enriched sites declared by our method, we could use the `plotCoverage` function as described in previous sections.
+
+```{r viz_coverage, include = TRUE, echo = TRUE, eval = FALSE}
+de_sites <- which(pvals.a <= 0.05)
+tan::plotCoverage(tanDb@coverage[[de_sites[1]]], title = 'coverage plot of DE site')
+```
+
+
+
+
 
