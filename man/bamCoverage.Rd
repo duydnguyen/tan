@@ -4,10 +4,10 @@
 \alias{bamCoverage}
 \title{Count reads mapping to pre-specified regions}
 \usage{
-bamCoverage(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
+bamCoverage(colData, bed_files, mc_cores = 1, sm = 1, binsize = 1)
 }
 \arguments{
-\item{bam_files}{: full directories to bam files.}
+\item{colData}{: a table of sample information}
 
 \item{bed_files}{: full directories to bed files.}
 

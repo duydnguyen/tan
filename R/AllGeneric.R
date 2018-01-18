@@ -130,3 +130,15 @@ setGeneric("computePvalues_batch", function(object, quant, poolQuant, movAve, Gl
                                             bins, create_pMat = FALSE,...) {
     standardGeneric("computePvalues_batch")
 })
+
+##'  show \code{tanDb} object in interactive mode
+##'
+##' content for details
+##' @title
+##' @param object A \code{tanDb} object
+##' @return output an overview of \code{tanDb} object
+##' @export
+##' @author Duy Nguyen
+setGeneric("show", function(object) {
+    standardGeneric("show")
+})
