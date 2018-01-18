@@ -373,7 +373,7 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
 
 #'  Count reads mapping to pre-specified regions
 #'
-#' @param bam_files : full directories to bam files.
+#' @param colData : a table of sample information
 #' @param bed_files : full directories to bed files.
 #' @param mc_cores : number of cores for parallel backend.
 #' @param sm : smoothing parameter for coverage.
@@ -383,7 +383,7 @@ generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
 #' @export
 #'
 #' @examples
-bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1) {
+bamCoverage <- function(colData, bed_files, mc_cores = 1, sm = 1, binsize = 1) {
     # gr_region is GRanges object
     get_coverage <- function(bam_cover, gr_region, gr_length, binsize = 1) {
         ## get binIndex
@@ -416,8 +416,14 @@ bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
         return(coverage_gr)
     }
     # read bam files
-    reads <- mclapply(bam_files, readGAlignments, param = NULL, mc.cores = mc_cores)
-    names(reads) <- gsub(".sort.bam","", basename(bam_files))
+    cond_lab <- unique(colData$Condition)
+    coldata[which(colData$Condition == cond_lab[1]) , 'bam_files']
+    coldata[which(colData$Condition == cond_lab[2]) , 'bam_files']
+    ids.order <- c(which(colData$Condition == cond_lab[1]), which(colData$Condition == cond_lab[2]) )
+    bams <- as.character(colData[ids.order,]$bam_files)
+    sample.ids.order <- as.character(colData[ids.order,]$SampleID)
+    reads <- mclapply(bams, readGAlignments, param = NULL, mc.cores = mc_cores)
+    names(reads) <- gsub(".sort.bam","", basename(bams))
     reads <- mclapply(reads, as, "GRanges", mc.cores = mc_cores)
     # read bed file(s)
     bed_content <- mclapply(bed_files, read.table, mc.cores = mc_cores)
@@ -447,7 +453,8 @@ bamCoverage <- function(bam_files, bed_files, mc_cores = 1, sm = 1, binsize = 1)
     for (site in 1:length(gr_regions)) {
         gr <- gr_regions[site]
         coverage[[site]] <- get_coverage(bam_cover = bam_cover, gr_region = gr,
-                                         gr_length = width(gr), binsize = binsize)
+                                        gr_length = width(gr), binsize = binsize)
+        rownames(coverage[[site]]) <- sample.ids.order
     }
     return(coverage)
 }
@@ -499,4 +506,3 @@ NULL
 NULL
 #' @import parallel
 NULL
-
