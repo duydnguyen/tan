@@ -37,9 +37,16 @@ bed_files <- files[1]
 # checking if there is an index 
 file.exists(gsub(".bam$", ".bam.bai", files[c(1,3,6,9,12)]))
 
+## ----colData, include=TRUE, echo=TRUE, eval=TRUE---------------------------
+sample.ids <- c('rep1_4HT-', 'rep1_4HT+', 'rep2_4HT-', 'rep2_4HT+')
+condition <- factor(c(rep(c('4HT-', '4HT+'), 2 )))
+coldata <- data.frame('SampleID' = sample.ids, 'Condition' = condition, 'bam_files' = bam_files)
+
 ## ----params, include=TRUE, echo=TRUE, eval=TRUE----------------------------
+# width of bins to count reads mapping to regions
 binsize <- 150
-sm <- 1 # smooth parameter
+# smooth parameter
+sm <- 1 
 mc_cores <- 3
 bed_content <- read.table(file = files[1], stringsAsFactors = FALSE)
 gr <- GRanges(seqnames = bed_content[, 1],
@@ -49,15 +56,19 @@ chromosomes <- c("chr7")
 gr
 
 ## ----bamCoverage, include=TRUE, echo=TRUE, eval=TRUE-----------------------
-coverage <- tan::bamCoverage(bam_files = bam_files, bed_files = bed_files,
+coverage <- tan::bamCoverage(colData = coldata, bed_files = bed_files,
                          mc_cores = mc_cores, sm = sm, binsize = binsize)
 
 class(coverage)
 length(coverage)
 
 ## ----bamCoverage_plot, include=TRUE, echo=TRUE, eval=TRUE------------------
+peak.id <- 1
+tan::plotCoverage(coverage, peak_id = peak.id,title = toString(gr[peak.id]))
 
-tan::plotCoverage(coverage[[1]], title = toString(gr[1]))
+## ----bamCoverage_plot_samples, include=TRUE, echo=TRUE, eval=TRUE----------
+sample.ids <- c('rep1_4HT-', 'rep1_4HT+', 'rep2_4HT-', 'rep2_4HT+')
+tan::plotCoverage(coverage, peak_id = peak.id, sample_ids = sample.ids, title = toString(gr[peak.id]))
 
 ## ----GR_info, include = TRUE, echo = TRUE, eval = TRUE---------------------
 files = list.files(system.file("extdata",
@@ -71,14 +82,13 @@ gr_sitesSelect
 #  tanDb <- new("tanDb", coverage = coverage)
 
 ## ----design, include = TRUE, echo = TRUE, eval = FALSE---------------------
-#  tanDb <- createDesigns(tanDb, s.size = 500, LHD = TRUE, Uniform = FALSE )
+#  tanDb <- createDesigns(tanDb, s.size = 500)
 
 ## ----totalCounts, include = FALSE, echo = FALSE, eval = TRUE---------------
 load(files[4])
 
 ## ----totalCounts2, include = TRUE, echo = TRUE, eval = FALSE---------------
-#  tanDb <- calculateTotalCounts(tanDb, nSamples = 3, bNormWidth = FALSE,
-#                                bSampleMean = FALSE)
+#  tanDb <- calculateTotalCounts(tanDb, nSamples = 3)
 #  head(tanDb@Ns)
 
 ## ----totalCounts3, include = TRUE, echo = FALSE, eval = TRUE---------------
@@ -107,8 +117,20 @@ print(head(tanDb@Ns))
 #  tanDb <- generateWithinTan(tanDb, minus_condition = FALSE)
 
 ## ----computePvalues, include = TRUE, echo = TRUE, eval = FALSE-------------
-#  tanDb <- computePvalues(tanDb, quant = 1, poolQuant = poolQuant,
-#                          movAve = movAve, Global_lower = Global_lower,
-#                          ignore_sitesUnused = TRUE,
-#                          na_impute = FALSE)
+#  tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant,
+#                          movAve = movAve, Global_lower = Global_lower)
+#  
+
+## ----evalPvals, include = TRUE, echo = TRUE, eval = FALSE------------------
+#  pvals <- evalPvals(P = tanDb@PvalList, total = nrow(P[['pval']]), quant = 0.25,
+#                     nSamples = tanDb@nSamples, BH = FALSE, na.rm = TRUE)
+#  pvals.a <- p.adjust(pvals, method = 'BH')
+
+## ----evalPvals_adjusted, include = TRUE, echo = TRUE, eval = FALSE---------
+#  pvals.a <- evalPvals(P = tanDb@PvalList, total = nrow(P[['pval']]), quant = 0.25,
+#                     nSamples = tanDb@nSamples, BH = TRUE, na.rm = TRUE)
+
+## ----viz_coverage, include = TRUE, echo = TRUE, eval = FALSE---------------
+#  de_sites <- which(pvals.a <= 0.05)
+#  tan::plotCoverage(coverage = tanDb@coverage, peak_id = de_sites[1], title = 'coverage plot of DE site')
 

@@ -182,8 +182,6 @@ load(files[4])
 ```
 
 ```{r totalCounts2, include = TRUE, echo = TRUE, eval = FALSE}
-# tanDb <- calculateTotalCounts(tanDb, nSamples = 3, bNormWidth = FALSE, 
-#                               bSampleMean = FALSE)
 tanDb <- calculateTotalCounts(tanDb, nSamples = 3)
 head(tanDb@Ns)
 ```
@@ -236,10 +234,6 @@ regions, leading to the prediction of differential regions after
 multiple testing correction. The code is as follows:
 
 ```{r computePvalues, include = TRUE, echo = TRUE, eval = FALSE}
-# tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant, 
-#                         movAve = movAve, Global_lower = Global_lower, 
-#                         ignore_sitesUnused = TRUE,
-#                         na_impute = FALSE)
 tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant, 
                         movAve = movAve, Global_lower = Global_lower)
 
@@ -268,8 +262,3 @@ For visualizing the results of diffentially/non-differentially enriched sites de
 de_sites <- which(pvals.a <= 0.05)
 tan::plotCoverage(coverage = tanDb@coverage, peak_id = de_sites[1], title = 'coverage plot of DE site')
 ```
-
-
-
-
-
