@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-setGeneric("createDesigns", function(object, s.size, LHD, Uniform) {
+setGeneric("createDesigns", function(object, s.size, LHD = TRUE, Uniform = FALSE) {
     standardGeneric("createDesigns")
 })
 
@@ -18,14 +18,14 @@ setGeneric("createDesigns", function(object, s.size, LHD, Uniform) {
 #'
 #' @param object A \code{tanDb} object
 #' @param nSamples Sample sizes for each conditions (n1=n2=n)
-#' @param bNormWidth Parameter for Binning TODO
-#' @param bSampleMean Parameter for Binning TODO
+#' @param bNormWidth Parameter for Binning
+#' @param bSampleMean Parameter for Binning
 #'
 #' @return the matrix of total counts \code{Ns}
 #' @export
 #'
 #' @examples
-setGeneric("calculateTotalCounts", function(object, nSamples, bNormWidth, bSampleMean) {
+setGeneric("calculateTotalCounts", function(object, nSamples, bNormWidth = FALSE, bSampleMean = FALSE) {
     standardGeneric("calculateTotalCounts")
 })
 
@@ -90,16 +90,16 @@ setGeneric("generateWithinTan", function(object, minus_condition, use_cpp = TRUE
 #' @param Global_lower set lower bound for minGlobal (length of pooled var vector for each bins)
 #'    Recommend using \code{Global_lower <- floor(s.size/2)}
 #' @param use_cpp TRUE if the implementation uses cpp functions;
-#' FALSE if the implementation uses R functions. R version is under development.
-#' @param ignore_sitesUnused FALSE by default if considering sitesUnused when computing p-values of testing between;
-#' recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up
-#' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE
+#' FALSE if the implementation uses R functions.
+#' @param ignore_sitesUnused FALSE if considering sitesUnused when computing p-values of testing between;
+#' TRUE by default since sitesUnused caused many zero p-values due to low-count/bad regions in sitesUnused.
+#' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;FALSE by default.
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, na_impute = TRUE, ...) {
+setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = TRUE, na_impute = FALSE, ...) {
     standardGeneric("computePvalues")
 })
 
@@ -114,7 +114,7 @@ setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_l
 #' @param use_cpp TRUE if the implementation uses cpp functions;
 #' FALSE if the implementation uses R functions. R version is under development.
 #' @param ignore_sitesUnused FALSE by default if considering sitesUnused when computing p-values of testing between;
-#' recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up
+#' recommend using TRUE since sitesUnused caused pvalues = 0.
 #' @param na_impute Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE
 #' @param bins A vector stores bin indices to be run in batch mode.
 #' @param create_pMat A logical value. TRUE to generate p-value matrix \code{pMat} by combining p.list in \code{binsCompleted}.
@@ -129,16 +129,4 @@ setGeneric("computePvalues", function(object, quant, poolQuant, movAve, Global_l
 setGeneric("computePvalues_batch", function(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE, ignore_sitesUnused = FALSE, na_impute = TRUE,
                                             bins, create_pMat = FALSE,...) {
     standardGeneric("computePvalues_batch")
-})
-
-##'  show \code{tanDb} object in interactive mode
-##'
-##' content for details
-##' @title
-##' @param object A \code{tanDb} object
-##' @return output an overview of \code{tanDb} object
-##' @export
-##' @author Duy Nguyen
-setGeneric("show", function(object) {
-    standardGeneric("show")
 })

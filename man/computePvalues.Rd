@@ -5,7 +5,7 @@
 \title{Compute p values for adaptive tests}
 \usage{
 computePvalues(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE,
-  ignore_sitesUnused = FALSE, na_impute = TRUE, ...)
+  ignore_sitesUnused = TRUE, na_impute = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
@@ -20,12 +20,12 @@ computePvalues(object, quant, poolQuant, movAve, Global_lower, use_cpp = TRUE,
 Recommend using \code{Global_lower <- floor(s.size/2)}}
 
 \item{use_cpp}{TRUE if the implementation uses cpp functions;
-FALSE if the implementation uses R functions. R version is under development.}
+FALSE if the implementation uses R functions.}
 
-\item{ignore_sitesUnused}{FALSE by default if considering sitesUnused when computing p-values of testing between;
-recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up}
+\item{ignore_sitesUnused}{FALSE if considering sitesUnused when computing p-values of testing between;
+TRUE by default since sitesUnused caused many zero p-values due to low-count/bad regions in sitesUnused.}
 
-\item{na_impute}{Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE}
+\item{na_impute}{Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;FALSE by default.}
 }
 \description{
 Compute p values for adaptive tests

@@ -24,7 +24,7 @@ Recommend using \code{Global_lower <- floor(s.size/2)}}
 FALSE if the implementation uses R functions. R version is under development.}
 
 \item{ignore_sitesUnused}{FALSE by default if considering sitesUnused when computing p-values of testing between;
-recommend using TRUE since sitesUnused caused pvalues = 0. #TODO: clean up}
+recommend using TRUE since sitesUnused caused pvalues = 0.}
 
 \item{na_impute}{Impute missing value of \code{p-values} and \code{FDR} matrices by taking global mean for all p;TRUE by default. Recommend using FALSE}
 

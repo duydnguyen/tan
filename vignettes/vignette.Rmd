@@ -163,7 +163,7 @@ tanDb <- new("tanDb", coverage = coverage)
 The [tan](https://github.com/duydnguyen/tan/)'s power lies in accomodating regions (or peaks)  with different lengths by using the adaptive Neyman statistics.  Its ***adaptive*** property not only allows a wide range of peak lengths, but also improve the power of detecting DE regions. However, for cases of regions with large genomic intervals, we advise using a sampling design across these intervals. This procedure mimics a Latin hypercube sampling in computer experiments or for Monte-Carlo integration. Such designs have a space-filling property which helps capture the spatial and shape structures of histone profile coverage. As a result, it improves the power of detecting DE regions. For instance, using the `createDesigns()`, we could create a grid of evenly spaced points for each region. 
 
 ```{r design, include = TRUE, echo = TRUE, eval = FALSE}
-tanDb <- createDesigns(tanDb, s.size = 500, LHD = TRUE, Uniform = FALSE )
+tanDb <- createDesigns(tanDb, s.size = 500)
 ```
 
 ## Empirical null distributions
@@ -182,8 +182,9 @@ load(files[4])
 ```
 
 ```{r totalCounts2, include = TRUE, echo = TRUE, eval = FALSE}
-tanDb <- calculateTotalCounts(tanDb, nSamples = 3, bNormWidth = FALSE, 
-                              bSampleMean = FALSE)
+# tanDb <- calculateTotalCounts(tanDb, nSamples = 3, bNormWidth = FALSE, 
+#                               bSampleMean = FALSE)
+tanDb <- calculateTotalCounts(tanDb, nSamples = 3)
 head(tanDb@Ns)
 ```
 
@@ -235,10 +236,13 @@ regions, leading to the prediction of differential regions after
 multiple testing correction. The code is as follows:
 
 ```{r computePvalues, include = TRUE, echo = TRUE, eval = FALSE}
+# tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant, 
+#                         movAve = movAve, Global_lower = Global_lower, 
+#                         ignore_sitesUnused = TRUE,
+#                         na_impute = FALSE)
 tanDb <- computePvalues(tanDb, quant = 0.5, poolQuant = poolQuant, 
-                        movAve = movAve, Global_lower = Global_lower, 
-                        ignore_sitesUnused = TRUE,
-                        na_impute = FALSE)
+                        movAve = movAve, Global_lower = Global_lower)
+
 ```
 
 The raw and adjusted _p-values_ could be obtained by extracting slot `tanDb@PvalList`. This completes the testing phase.
