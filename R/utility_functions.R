@@ -459,39 +459,62 @@ bamCoverage <- function(colData, bed_files, mc_cores = 1, sm = 1, binsize = 1) {
     return(coverage)
 }
 
-#' create a coverage profile plot
+#' create an enrichment profile for a set of samples at a given peak
 #'
-#' @param coverage : A matrix to store coverage reads
+#' @param coverage : A list of coverage whose elements contain reads from given
+#'     regions.
+#' @param peak_id : integer indicating the index of the peak to be plotted
+#' @param sample_ids : labels of the considered samples for enrichment plot. If
+#'     NA, all samples will be used, and the mean profiles for each conditions
+#'     are created.
 #' @param title : title of the plot
 #' @param size : thickness of lines
-#' @param showLegend
-#'
+#' @param showLegend : if TRUE legend is shown
 #' @return A ggplot2 plot
 #' @export
 #'
 #' @examples
-plotCoverage <- function(coverage, title = "", size = 0.5, showLegend = TRUE) {
-    nSample <- floor(dim(coverage)[1]/2)
-    coverage <- t(coverage)
-    minus <- apply(coverage[, 1:nSample], 1, mean)
-    plus <- apply(coverage[, (nSample + 1):(2*nSample)], 1, mean)
-    x_axis <- rep(seq(1,length(minus)), 2)
-    samples <- c(rep('Condition 1', length(minus)), rep('Condition 2', length(minus)))
-    df <- data.frame('RPM' = c(minus,plus), 'samples' = samples, 'x' = x_axis)
-    p <- ggplot(df, aes(x, RPM, color = samples)) + geom_line(size = size) +
+plotCoverage <- function(coverage, peak_id, sample_ids = NA, title = "", size = 0.5, showLegend = TRUE) {
+    coverage <- coverage[[peak_id]]
+    if (is.na(sample_ids[1])) {
+        nSample <- ceiling(dim(coverage)[1]/2)
+        coverage <- t(coverage)
+        minus <- apply(coverage[, 1:nSample], 1, mean)
+        plus <- apply(coverage[, (nSample + 1):(2*nSample)], 1, mean)
+        x_axis <- rep(seq(1,length(minus)), 2)
+        samples <- c(rep('Condition 1', length(minus)), rep('Condition 2', length(minus)))
+        df <- data.frame('RPM' = c(minus,plus), 'samples' = samples, 'x' = x_axis)
+        p <- ggplot(df, aes(x, RPM, color = samples)) + geom_line(size = size) +
         ylab("Counts") + xlab("Genomic Region (5 -> 3)") +
         labs(title= title) + theme_bw() +
         scale_colour_manual(values = c('#619CFF','#CC6666'))
-    if (showLegend) {
-        return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
-        print(p)
-    } else {
-        return(p + theme(legend.position="none", legend.direction="horizontal",
-                         legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
-                         axis.text.x = element_blank(),
-                         axis.ticks.x = element_blank()))
+        if (showLegend) {
+            return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
+            print(p)
+        } else {
+            return(p + theme(legend.position="none", legend.direction="horizontal",
+                             legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
+                             axis.text.x = element_blank(),
+                             axis.ticks.x = element_blank()))
+        }
     }
-
+    else {
+        coverage <- coverage[sample_ids,]
+        coverage <- t(coverage)
+        df <- data.table::melt(coverage)
+        colnames(df) <- c('x_axis', 'samples', 'RPM')
+        p <- ggplot(df, aes(x_axis, RPM, color = samples)) + geom_line(size = size) +
+        ylab("Counts") + xlab("Genomic Region (5 -> 3)") + labs(title= title) + theme_bw()
+        if (showLegend) {
+            return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
+            print(p)
+        } else {
+            return(p + theme(legend.position="none", legend.direction="horizontal",
+                             legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
+                             axis.text.x = element_blank(),
+                             axis.ticks.x = element_blank()))
+        }
+    }
 }
 
 
