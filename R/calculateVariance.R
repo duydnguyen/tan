@@ -163,64 +163,9 @@ evaluate_variance <- function(coverage, nSamples, wSites, lab_pool, minus_condit
                                             'ac' = testList[[1]]$varY[1:minIndex],
                                             'bc' = testList[[2]]$varY[1:minIndex])
                         }
-<<<<<<< HEAD
-                        else {
-                            design <- object@Designs[site, ]
-                            if (use_cpp) {
-                                test1 <- tan::compute_Var(X1[, design], Y1[, design], na_rm = TRUE, pool = FALSE)
-                                test2 <- tan::compute_Var(X2[, design], Y2[, design], na_rm = TRUE, pool = FALSE)
-                                test3 <- tan::compute_Var(X3[, design], Y3[, design], na_rm = TRUE, pool = FALSE)
-                            }
-                            else {
-                                test1 <- tan::AN.test(X1[, design], Y1[, design], na.rm=TRUE)
-                                test2 <- tan::AN.test(X2[, design], Y2[, design], na.rm=TRUE)
-                                test3 <- tan::AN.test(X3[, design], Y3[, design], na.rm=TRUE)
-                            }
-                        }
-                        minIndex <- min(c(length(test1$varX), length(test2$varX),length(test3$varX),
-                                          length(test1$varY), length(test2$varY), length(test3$varY)))
-                        ## check minIndex > Global_lower (lower bound for pooled var vector of each bins)
-                        if (minIndex > Global_lower) {
-                            if (minGlobal > minIndex) {
-                                minGlobal <- minIndex
-                            }
-                            # df <- data.frame('ab' = test1$varX[1:minIndex], 'ac' = test2$varX[1:minIndex], 'ad' = test3$varX[1:minIndex],
-                            #                  'bc' = test3$varY[1:minIndex], 'bd' = test2$varY[1:minIndex], 'cd' = test1$varY[1:minIndex])
-                            df <- data.frame('ab' = test1$varX[1:minIndex],
-                                             'ac' = test1$varY[1:minIndex],
-                                             'bc' = test3$varY[1:minIndex])
-
-                            varList[[count]] <- df
-                            count <- count + 1
-                        }
-                        # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
-                        # or manyrepeated counts: 03/24/17
-                        else {
-                            sitesUnused <- c(sitesUnused, site)
-                        }
-                    } # end of for (site in sites)
-                    ## Pooling variances across sites in bin
-                    poolVar <- list()
-                    print(paste(" +++ minGlobal = ", minGlobal, sep = ""))
-                    ## Case: minGlobal < Inf
-                    if (minGlobal < Inf) {
-                        matVar <- matrix(NA, nrow = length(varList), ncol = minGlobal)
-                        for (pair in lab_pool) {
-                            for (i in 1:length(varList)) {
-                                matVar[i, ] <- varList[[i]][1:minGlobal, pair]
-                            }
-                            var <- apply(matVar, 2, function(x) quantile(x, probs = poolQuant, na.rm = TRUE))
-                            if ( length(var) >= movAve ) {
-                                var <- tan::movingAverage(var, movAve)
-                            }
-                            poolVar[[pair]] <- var
-                        }
-                        Var[[bin]] <- poolVar
-=======
 
                         varList[[count]] <- df
                         count <- count + 1
->>>>>>> devel
                     }
                     # store all unused sites (minIndex < Global_lower): minIndex = 0 -> var empty due to flat peak,
                     # or many repeated counts, or peakLength too small. 03/24/17
