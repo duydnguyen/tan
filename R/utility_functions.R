@@ -220,7 +220,11 @@ evalPvals <- function(P, total = nrow(P[['pval']]), quant = 1, nSamples, BH = FA
     p <- P[['pval']]
     p <- p[, 1:( ncol(p) - 1)]
     Between_cols <- numeric()
-    Pc <- rep(NA, dim(p)[1])
+    if (nSamples == 2) {
+        Pc <- rep(NA, length(p))
+    } else {
+        Pc <- rep(NA, dim(p)[1])
+    }
     if (nSamples == 4) {
         Between_cols <- 6 * 6
         Pc <- apply(p[,1:Between_cols], 1, function(x) quantile(x, probs = quant, na.rm = na.rm))
@@ -291,6 +295,233 @@ create_pMat <- function(p.list, totalPeaks, nSamples) {
     pMat
 }
 
+#' Extract reads from a Segvis object
+#'
+#' @param object A Segvis_block_list object.
+#' @param condition
+#' @param coord a vector storing the genomic coordinates to be extracted.
+#' @param mc number of cores for parallel pipeline.
+#' @param FUN
+#' @param ...
+#'
+#' @return a data frame contains read coverage.
+#'
+#' @examples
+generate_coverage <- function (object, condition, coord = NULL, mc, FUN, ...)
+{
+    .filter_sb <- function (object, cond)
+    {
+        if (any(is.na(cond))) {
+            warning("There are regions impossible to evaluate")
+            cond[is.na(cond)] = FALSE
+        }
+        V1 <- NULL
+        coverage <- copy(cover_table(object))
+        lengths <- coverage[, length(coord), by = list(chr, match)][,
+                                                                    (V1)]
+        extended_cond <- unlist(mapply(function(x, l) rep(x, l),
+                                       cond, lengths, SIMPLIFY = FALSE))
+        out_regions <- regions(object)[cond]
+        rm(cond)
+        coverage[, `:=`(cond, extended_cond)]
+        coverage <- coverage[cond == TRUE]
+        coverage[, `:=`(cond, NULL)]
+        out <- new("segvis_block", name = name(object), regions = out_regions,
+                   bandwidth = bandwidth(object), normConst = normConst(object),
+                   cover_table = coverage, .isScaled = object@.isScaled)
+        return(out)
+    }
+    create_plot_data <- function (counts, name, coord)
+    {
+        dt <- data.table(x = coord, y = counts, condition = name)
+        return(dt)
+    }
+    .subset_logical <- function (object, condition_call)
+    {
+        cond <- as.logical(eval(condition_call, as(regions(object),
+                                                   "data.frame"), parent.frame()))
+        return(cond)
+    }
+    ### MAIN ###
+    if (is.null(names(object))) {
+        nms <- 1:length(object)
+    }
+    else {
+        nms <- names(object)
+    }
+    if (!missing(condition)) {
+        conds <- mclapply(object, .subset_logical, substitute(condition),
+                          mc.cores = mc)
+    }
+    else {
+        nregions <- lapply(object, function(x) length(regions(x)))
+        conds <- lapply(nregions, function(x) rep(TRUE, x))
+    }
+    subsets <- mcmapply(.filter_sb, object, conds, SIMPLIFY = FALSE,
+                        mc.cores = mc)
+    widths <- mclapply(subsets, function(x) width(regions(x)),
+                       mc.cores = mc)
+    if (length(unique(unlist(widths))) > 1) {
+        stop("The supplied regions doesn't have the same width")
+    }
+    else plot_width <- unique(unlist(widths))
+    if (is.null(coord)) {
+        coord <- 1:plot_width
+    }
+    profiles <- mclapply(subsets, summarize, FUN, ..., mc.cores = mc)
+    plot_data <- mcmapply(create_plot_data, profiles, nms, MoreArgs = list(coord),
+                          SIMPLIFY = FALSE, mc.silent = TRUE, mc.cores = mc, mc.preschedule = TRUE)
+    # plot_data <- do.call(rbind, plot_data)
+    return(plot_data)
+}
+
+#'  Count reads mapping to pre-specified regions
+#'
+#' @param colData : a table of sample information
+#' @param bed_files : full directories to bed files.
+#' @param mc_cores : number of cores for parallel backend.
+#' @param sm : smoothing parameter for coverage.
+#' @param binsize : width of bins to count reads mapping to regions instead of single base pairs.
+#'
+#' @return : A list of coverage whose elements contain reads from the given regions.
+#' @export
+#'
+#' @examples
+bamCoverage <- function(colData, bed_files, mc_cores = 1, sm = 1, binsize = 1) {
+    # gr_region is GRanges object
+    get_coverage <- function(bam_cover, gr_region, gr_length, binsize = 1) {
+        ## get binIndex
+        get_bin_index <- function(binsize = 1, len_coverage) {
+            nBins <- floor(len_coverage/ binsize)
+            binIndex <- rep(1:nBins, each = binsize)
+            if ( length(binIndex) < len_coverage ) {
+                binIndex <- c(binIndex, rep(nBins + 1, len_coverage - length(binIndex) ))
+            }
+            return(binIndex)
+        }
+        ## main ##
+        binIndex <- get_bin_index(binsize = binsize, len_coverage = gr_length)
+        bam_all <- mapply(function(cover, region, bIndex) {
+            mat <- cover[region]
+            mat <- lapply(mat,as.vector)
+            nms <- paste0(as.character(GenomicRanges::seqnames(region)),":",
+                          GenomicRanges::start(region),"-", GenomicRanges::end(region))
+            DT <- mcmapply(function(x,nm, bIndex){
+                data.table(coord = bIndex, counts = x , name = nm)
+            },
+            mat, nms, MoreArgs = list(bIndex),SIMPLIFY = FALSE, mc.cores = 10)
+            return(do.call(rbind,DT))
+        },
+        bam_cover, list(gr_region), MoreArgs = list(binIndex),SIMPLIFY = FALSE)
+        bam_DT <- lapply(bam_all, function(x) x[, sum(counts),by = coord])
+        # generate coverage
+        coverage_gr <- lapply(bam_DT, function(x) x[, 2])
+        coverage_gr <- matrix(unlist(coverage_gr), ncol = dim(coverage_gr[[1]])[1], byrow = TRUE)
+        return(coverage_gr)
+    }
+    # read bam files
+    cond_lab <- unique(colData$Condition)
+    coldata[which(colData$Condition == cond_lab[1]) , 'bam_files']
+    coldata[which(colData$Condition == cond_lab[2]) , 'bam_files']
+    ids.order <- c(which(colData$Condition == cond_lab[1]), which(colData$Condition == cond_lab[2]) )
+    bams <- as.character(colData[ids.order,]$bam_files)
+    sample.ids.order <- as.character(colData[ids.order,]$SampleID)
+    reads <- mclapply(bams, readGAlignments, param = NULL, mc.cores = mc_cores)
+    names(reads) <- gsub(".sort.bam","", basename(bams))
+    reads <- mclapply(reads, as, "GRanges", mc.cores = mc_cores)
+    # read bed file(s)
+    bed_content <- mclapply(bed_files, read.table, mc.cores = mc_cores)
+    bed_content <- lapply(bed_content, data.table)
+    names(bed_content) <- basename(dirname(bed_files))
+    bed_content <- lapply(bed_content, function(x) {
+        setnames(x, names(x), c('seqnames', 'start', 'end') )
+        return(x)
+    })
+    # extract Reads
+    bam_cover <- mclapply(reads, function(x,smooth = 1) {
+        x <- GenomicRanges::resize(x,smooth)
+        return(GenomicRanges::coverage(x))},
+        smooth = sm, mc.cores = mc_cores)
+
+    ### convert bed_content to GRanges
+    gr_regions <- lapply(bed_content, function(x) {
+        y <- copy(x)
+        out <- y[,GenomicRanges::GRanges(seqnames = seqnames,
+                          ranges = IRanges::IRanges(start = as.numeric(start),
+                                           end = as.numeric(end)))]
+        return(out)
+    })
+    # generate coverage: accept one bed file for now
+    gr_regions <- gr_regions[[1]]
+    coverage <- list()
+    for (site in 1:length(gr_regions)) {
+        gr <- gr_regions[site]
+        coverage[[site]] <- get_coverage(bam_cover = bam_cover, gr_region = gr,
+                                        gr_length = width(gr), binsize = binsize)
+        rownames(coverage[[site]]) <- sample.ids.order
+    }
+    return(coverage)
+}
+
+#' create an enrichment profile for a set of samples at a given peak
+#'
+#' @param coverage : A list of coverage whose elements contain reads from given
+#'     regions.
+#' @param peak_id : integer indicating the index of the peak to be plotted
+#' @param sample_ids : labels of the considered samples for enrichment plot. If
+#'     NA, all samples will be used, and the mean profiles for each conditions
+#'     are created.
+#' @param title : title of the plot
+#' @param size : thickness of lines
+#' @param showLegend : if TRUE legend is shown
+#' @return A ggplot2 plot
+#' @export
+#'
+#' @examples
+plotCoverage <- function(coverage, peak_id, sample_ids = NA, title = "", size = 0.5, showLegend = TRUE) {
+    coverage <- coverage[[peak_id]]
+    if (is.na(sample_ids[1])) {
+        nSample <- ceiling(dim(coverage)[1]/2)
+        coverage <- t(coverage)
+        minus <- apply(coverage[, 1:nSample], 1, mean)
+        plus <- apply(coverage[, (nSample + 1):(2*nSample)], 1, mean)
+        x_axis <- rep(seq(1,length(minus)), 2)
+        samples <- c(rep('Condition 1', length(minus)), rep('Condition 2', length(minus)))
+        df <- data.frame('RPM' = c(minus,plus), 'samples' = samples, 'x' = x_axis)
+        p <- ggplot(df, aes(x, RPM, color = samples)) + geom_line(size = size) +
+        ylab("Counts") + xlab("Genomic Region (5 -> 3)") +
+        labs(title= title) + theme_bw() +
+        scale_colour_manual(values = c('#619CFF','#CC6666'))
+        if (showLegend) {
+            return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
+            print(p)
+        } else {
+            return(p + theme(legend.position="none", legend.direction="horizontal",
+                             legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
+                             axis.text.x = element_blank(),
+                             axis.ticks.x = element_blank()))
+        }
+    }
+    else {
+        coverage <- coverage[sample_ids,]
+        coverage <- t(coverage)
+        df <- data.table::melt(coverage)
+        colnames(df) <- c('x_axis', 'samples', 'RPM')
+        p <- ggplot(df, aes(x_axis, RPM, color = samples)) + geom_line(size = size) +
+        ylab("Counts") + xlab("Genomic Region (5 -> 3)") + labs(title= title) + theme_bw()
+        if (showLegend) {
+            return(p + theme(legend.position="top", legend.direction="horizontal", legend.title = element_blank(),legend.key.size = unit(0.65, "cm")))
+            print(p)
+        } else {
+            return(p + theme(legend.position="none", legend.direction="horizontal",
+                             legend.title = element_blank(),legend.key.size = unit(0.65, "cm"),
+                             axis.text.x = element_blank(),
+                             axis.ticks.x = element_blank()))
+        }
+    }
+}
+
+
 #' @useDynLib tan
 #' @importFrom Rcpp sourceCpp
 NULL
@@ -298,5 +529,7 @@ NULL
 NULL
 #' @import foreach
 NULL
-
-
+#' @import data.table
+NULL
+#' @import parallel
+NULL

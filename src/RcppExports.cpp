@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // AN_test
 List AN_test(NumericMatrix X, NumericMatrix Y, LogicalVector na_rm, LogicalVector pool, NumericVector poolVarX, NumericVector poolVarY);
-RcppExport SEXP tan_AN_test(SEXP XSEXP, SEXP YSEXP, SEXP na_rmSEXP, SEXP poolSEXP, SEXP poolVarXSEXP, SEXP poolVarYSEXP) {
+RcppExport SEXP _tan_AN_test(SEXP XSEXP, SEXP YSEXP, SEXP na_rmSEXP, SEXP poolSEXP, SEXP poolVarXSEXP, SEXP poolVarYSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // compute_Var
 List compute_Var(NumericMatrix X, NumericMatrix Y, LogicalVector na_rm, LogicalVector pool);
-RcppExport SEXP tan_compute_Var(SEXP XSEXP, SEXP YSEXP, SEXP na_rmSEXP, SEXP poolSEXP) {
+RcppExport SEXP _tan_compute_Var(SEXP XSEXP, SEXP YSEXP, SEXP na_rmSEXP, SEXP poolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -37,8 +37,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"tan_AN_test", (DL_FUNC) &tan_AN_test, 6},
-    {"tan_compute_Var", (DL_FUNC) &tan_compute_Var, 4},
+    {"_tan_AN_test", (DL_FUNC) &_tan_AN_test, 6},
+    {"_tan_compute_Var", (DL_FUNC) &_tan_compute_Var, 4},
     {NULL, NULL, 0}
 };
 

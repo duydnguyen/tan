@@ -4,16 +4,17 @@
 \alias{calculateTotalCounts}
 \title{Calculate the matrix of total counts for each genomic regions.}
 \usage{
-calculateTotalCounts(object, nSamples, bNormWidth, bSampleMean)
+calculateTotalCounts(object, nSamples, bNormWidth = FALSE,
+  bSampleMean = FALSE)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
 
 \item{nSamples}{Sample sizes for each conditions (n1=n2=n)}
 
-\item{bNormWidth}{Parameter for Binning TODO}
+\item{bNormWidth}{Parameter for Binning}
 
-\item{bSampleMean}{Parameter for Binning TODO}
+\item{bSampleMean}{Parameter for Binning}
 }
 \value{
 the matrix of total counts \code{Ns}

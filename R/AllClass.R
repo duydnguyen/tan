@@ -26,7 +26,7 @@
 #' @slot binsCompleted A vector stores all bins that are succesfullly run in batch mode.
 #' @slot sitesUnused A vector of indices for unused sites due to bad quality peaks during testing within and between TAN.
 #'
-#' @return
+#' @return A prediction of differential regions
 #' @export
 #'
 #' @examples

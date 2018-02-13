@@ -4,6 +4,9 @@
 \name{tanDb-class}
 \alias{tanDb-class}
 \title{A class to store ChIP data and all related objects for differential analysis.}
+\value{
+A prediction of differential regions
+}
 \description{
 A class to store ChIP data and all related objects for differential analysis.
 }

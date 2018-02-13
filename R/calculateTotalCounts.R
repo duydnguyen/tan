@@ -11,7 +11,7 @@
     ### nSamples > 3 ###
     if (nSamples > 3) {
         print(paste("Calculating Total Counts for sample size n = ", nSamples), sep = "")
-        Ns_cols <- 12
+        Ns_cols <- nSamples * (nSamples - 1)
         Ncount  <- foreach::foreach(grid = c(1:n_cores), .combine = rbind, .multicombine = T) %do% {
             if (grid != n_cores) {
                 start <- (grid-1)*sizeGrid + 1
@@ -218,8 +218,10 @@
     # Add labels for Ns
     Ns <- matrix(NA, nrow = total, ncol = Ns_cols)
     colnames(Ncount) <- c(letters[1:nSamples], toupper(letters[1:nSamples]))
-    if (nSamples == 4) {
-        minLabs <- c('ab','ac','ad','bc','bd','cd')
+    if (nSamples > 3) {
+        matLab <- combn(letters[1:nSamples], 2)
+        # minLabs <- c('ab','ac','ad','bc','bd','cd')
+        minLabs <- apply(matLab, 2, FUN = function(x) paste(x[1], x[2], sep='') )
         plusLabs <- toupper(minLabs)
         colnames(Ns) <- c(minLabs, plusLabs)
         for (st in colnames(Ns)) {
@@ -240,7 +242,6 @@
             Ns[, st] <- rowMeans(Ncount[,c( substr(st,1,1), substr(st,2,2))])
         }
     }
-
     object@Ns <- Ns
     object@nSamples <- nSamples
     object

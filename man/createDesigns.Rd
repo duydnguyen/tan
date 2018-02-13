@@ -4,7 +4,7 @@
 \alias{createDesigns}
 \title{Create a matrix to store sampling locations for genomic regions.}
 \usage{
-createDesigns(object, s.size, LHD, Uniform)
+createDesigns(object, s.size, LHD = TRUE, Uniform = FALSE)
 }
 \arguments{
 \item{object}{A \code{tanDb} object}
